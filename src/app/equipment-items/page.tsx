@@ -90,7 +90,7 @@ export default async function EquipmentItemsPage() {
     <main className="flex flex-col gap-6">
       <div>
         <h1 className="text-lg font-bold">装備アイテム</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-slate-600">
           全アカウント・全キャラクター共通のアイテムです。どのキャラの装備タブからでも同じアイテムを装備できます。
         </p>
       </div>
@@ -142,7 +142,7 @@ export default async function EquipmentItemsPage() {
       </section>
 
       {items.length === 0 ? (
-        <p className="rounded border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
+        <p className="rounded border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-600">
           まだ装備アイテムがありません。
         </p>
       ) : (

@@ -17,7 +17,7 @@ export default async function DashboardPage() {
       </div>
 
       {accounts.length === 0 && (
-        <p className="rounded border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
+        <p className="rounded border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-600">
           まだアカウントが登録されていません。「アカウントを管理」から追加してください。
         </p>
       )}
@@ -29,14 +29,14 @@ export default async function DashboardPage() {
               <h2 className="font-semibold">{account.name}</h2>
               <Link
                 href={`/characters/new?account_id=${account.id}`}
-                className="text-sm text-slate-500 hover:underline"
+                className="text-sm text-slate-600 hover:underline"
               >
                 + キャラクター追加
               </Link>
             </div>
 
             {account.characters.length === 0 ? (
-              <p className="mt-2 text-sm text-slate-400">キャラクター未登録</p>
+              <p className="mt-2 text-sm text-slate-600">キャラクター未登録</p>
             ) : (
               <ul className="mt-3 flex flex-col gap-2">
                 {account.characters.map((character) => {
@@ -52,12 +52,12 @@ export default async function DashboardPage() {
                         <span className="font-medium">
                           {character.name}
                           {character.level != null && (
-                            <span className="ml-1 text-xs font-normal text-slate-400">
+                            <span className="ml-1 text-xs font-normal text-slate-600">
                               Lv.{character.level}
                             </span>
                           )}
                         </span>
-                        <span className="flex gap-3 text-xs text-slate-500">
+                        <span className="flex gap-3 text-xs text-slate-600">
                           <span>
                             デイリー未完了 {dailyRemaining}/{summary?.dailyTotal ?? 0}
                           </span>

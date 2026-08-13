@@ -26,7 +26,7 @@ export function RevealableInput({
       <button
         type="button"
         onClick={() => setVisible((v) => !v)}
-        className="text-xs text-slate-500 hover:underline"
+        className="text-xs text-slate-600 hover:underline"
       >
         {visible ? "隠す" : "表示"}
       </button>

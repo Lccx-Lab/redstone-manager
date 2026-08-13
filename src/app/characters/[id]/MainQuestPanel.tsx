@@ -21,7 +21,7 @@ export function MainQuestPanel({
         <div>
           <h2 className="text-sm font-semibold text-slate-600">メインクエスト</h2>
           {lastUpdated ? (
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-600">
               前回更新: {formatJstDateTime(lastUpdated)}
               <br />
               次回更新可能:{" "}
@@ -31,7 +31,7 @@ export function MainQuestPanel({
               </span>
             </p>
           ) : (
-            <p className="mt-1 text-sm text-slate-400">まだ記録がありません。</p>
+            <p className="mt-1 text-sm text-slate-600">まだ記録がありません。</p>
           )}
         </div>
 

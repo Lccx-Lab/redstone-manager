@@ -11,7 +11,7 @@ export default async function LoginPage({
     <main className="mx-auto flex min-h-[80vh] max-w-sm flex-col justify-center gap-6 px-4">
       <div>
         <h1 className="text-xl font-bold text-brand-700">REDSTONE Manager</h1>
-        <p className="mt-1 text-sm text-slate-500">アカウント・キャラクター管理ツール</p>
+        <p className="mt-1 text-sm text-slate-600">アカウント・キャラクター管理ツール</p>
       </div>
 
       {error && (

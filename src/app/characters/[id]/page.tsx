@@ -66,16 +66,16 @@ export default async function CharacterDetailPage({
   return (
     <main className="flex flex-col gap-6">
       <div>
-        <Link href="/" className="text-sm text-slate-500 hover:underline">
+        <Link href="/" className="text-sm text-slate-600 hover:underline">
           ← ダッシュボード
         </Link>
         <h1 className="mt-1 text-lg font-bold">
           {character.name}
           {character.level != null && (
-            <span className="ml-2 text-sm font-normal text-slate-500">Lv.{character.level}</span>
+            <span className="ml-2 text-sm font-normal text-slate-600">Lv.{character.level}</span>
           )}
         </h1>
-        {character.job && <p className="text-sm text-slate-500">{character.job}</p>}
+        {character.job && <p className="text-sm text-slate-600">{character.job}</p>}
       </div>
 
       <details className="rounded border border-slate-200 bg-white p-4">
@@ -130,7 +130,7 @@ export default async function CharacterDetailPage({
             className={`px-3 py-2 text-sm ${
               activeTab === t.key
                 ? "border-b-2 border-brand-600 font-semibold text-brand-700"
-                : "text-slate-500 hover:text-slate-700"
+                : "text-slate-600 hover:text-slate-700"
             }`}
           >
             {t.label}

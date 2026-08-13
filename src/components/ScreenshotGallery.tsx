@@ -43,7 +43,7 @@ export function ScreenshotGallery({
       </form>
 
       {screenshots.length === 0 ? (
-        <p className="rounded border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
+        <p className="rounded border border-dashed border-slate-300 p-6 text-center text-sm text-slate-600">
           {emptyLabel}
         </p>
       ) : (
@@ -57,13 +57,13 @@ export function ScreenshotGallery({
                   className="aspect-video w-full rounded object-cover"
                 />
               ) : (
-                <div className="flex aspect-video w-full items-center justify-center rounded bg-slate-100 text-xs text-slate-400">
+                <div className="flex aspect-video w-full items-center justify-center rounded bg-slate-100 text-xs text-slate-600">
                   画像を読み込めません
                 </div>
               )}
-              {shot.caption && <p className="truncate text-xs text-slate-500">{shot.caption}</p>}
+              {shot.caption && <p className="truncate text-xs text-slate-600">{shot.caption}</p>}
               <form action={makeDeleteAction(shot.id, shot.storage_path)}>
-                <button type="submit" className="text-xs text-red-400 hover:underline">
+                <button type="submit" className="text-xs text-red-500 hover:underline">
                   削除
                 </button>
               </form>

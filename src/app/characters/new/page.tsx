@@ -18,7 +18,7 @@ export default async function NewCharacterPage({
       <h1 className="text-lg font-bold">キャラクター追加</h1>
 
       {(accounts ?? []).length === 0 ? (
-        <p className="rounded border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
+        <p className="rounded border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-600">
           先にアカウントを登録してください。
         </p>
       ) : (

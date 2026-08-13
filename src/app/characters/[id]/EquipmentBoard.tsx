@@ -87,7 +87,7 @@ export function EquipmentBoard({
           アイテム一覧（ドラッグしてスロットへ装備）
         </h2>
         {itemLibrary.length === 0 ? (
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-600">
             装備アイテムがまだありません。ヘッダーの「装備アイテム」から作成してください。
           </p>
         ) : (
@@ -112,7 +112,7 @@ export function EquipmentBoard({
                     <span className="ml-1 text-[10px] text-brand-700">（{item.equippedOn}）</span>
                   )}
                 </div>
-                {item.memo && <div className="text-[10px] text-slate-400">{item.memo}</div>}
+                {item.memo && <div className="text-[10px] text-slate-600">{item.memo}</div>}
               </div>
             ))}
           </div>

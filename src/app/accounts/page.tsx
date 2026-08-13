@@ -44,7 +44,7 @@ export default async function AccountsPage() {
 
       <section className="flex flex-col gap-2">
         {(accounts ?? []).length === 0 && (
-          <p className="rounded border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
+          <p className="rounded border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-600">
             まだアカウントがありません。
           </p>
         )}
@@ -56,9 +56,9 @@ export default async function AccountsPage() {
           >
             <div>
               <p className="font-medium">{account.name}</p>
-              {account.memo && <p className="text-xs text-slate-500">{account.memo}</p>}
+              {account.memo && <p className="text-xs text-slate-600">{account.memo}</p>}
             </div>
-            <span className="text-sm text-slate-400">詳細 →</span>
+            <span className="text-sm text-slate-600">詳細 →</span>
           </Link>
         ))}
       </section>

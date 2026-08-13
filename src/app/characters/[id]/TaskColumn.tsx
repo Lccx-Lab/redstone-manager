@@ -23,7 +23,7 @@ export function TaskColumn({
     <section className="flex-1 rounded border border-slate-200 bg-white p-4">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-sm font-semibold text-slate-600">{title}</h2>
-        <span className="text-xs text-slate-400">
+        <span className="text-xs text-slate-600">
           {doneCount}/{tasks.length} 完了
         </span>
       </div>
@@ -34,19 +34,19 @@ export function TaskColumn({
             <form action={onToggle.bind(null, task.id, task.isDone)} className="flex-1">
               <button
                 type="submit"
-                className={`text-left text-sm ${task.isDone ? "text-slate-400 line-through" : "text-slate-900"}`}
+                className={`text-left text-sm ${task.isDone ? "text-slate-600 line-through" : "text-slate-900"}`}
               >
                 {task.isDone ? "✅" : "⬜"} {task.name}
               </button>
             </form>
             <form action={onDelete.bind(null, task.id)}>
-              <button type="submit" className="text-xs text-red-400 hover:underline">
+              <button type="submit" className="text-xs text-red-500 hover:underline">
                 削除
               </button>
             </form>
           </li>
         ))}
-        {tasks.length === 0 && <p className="text-sm text-slate-400">タスク未登録</p>}
+        {tasks.length === 0 && <p className="text-sm text-slate-600">タスク未登録</p>}
       </ul>
 
       <form action={onCreate} className="flex gap-2">

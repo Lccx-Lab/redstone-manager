@@ -13,7 +13,7 @@ export default async function OptionTypesPage() {
     <main className="flex flex-col gap-6">
       <div>
         <h1 className="text-lg font-bold">オプション項目マスタ</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-slate-600">
           装備の各スロットに設定できるオプション項目（例: 火属性強化、攻撃速度など）と、その単位・上限値を管理します。
         </p>
       </div>
@@ -63,7 +63,7 @@ export default async function OptionTypesPage() {
 
       <section className="flex flex-col gap-2">
         {(optionTypes ?? []).length === 0 && (
-          <p className="rounded border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
+          <p className="rounded border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-600">
             まだオプション項目がありません。
           </p>
         )}

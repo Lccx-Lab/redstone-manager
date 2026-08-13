@@ -82,13 +82,13 @@ export function ItemCard({
                     className="aspect-video w-full rounded object-cover"
                   />
                 ) : (
-                  <div className="flex aspect-video w-full items-center justify-center rounded bg-slate-100 text-[10px] text-slate-400">
+                  <div className="flex aspect-video w-full items-center justify-center rounded bg-slate-100 text-[10px] text-slate-600">
                     読み込み失敗
                   </div>
                 )}
-                {shot.caption && <p className="truncate text-[11px] text-slate-500">{shot.caption}</p>}
+                {shot.caption && <p className="truncate text-[11px] text-slate-600">{shot.caption}</p>}
                 <form action={deleteShotAction}>
-                  <button type="submit" className="text-[11px] text-red-400 hover:underline">
+                  <button type="submit" className="text-[11px] text-red-500 hover:underline">
                     削除
                   </button>
                 </form>
@@ -115,12 +115,12 @@ export function ItemCard({
 
       <div className="flex items-center gap-3 border-t border-slate-100 pt-2">
         <form action={duplicateAction}>
-          <button type="submit" className="text-xs text-slate-500 hover:underline">
+          <button type="submit" className="text-xs text-slate-600 hover:underline">
             複製
           </button>
         </form>
         <form action={deleteAction}>
-          <button type="submit" className="text-xs text-red-400 hover:underline">
+          <button type="submit" className="text-xs text-red-500 hover:underline">
             削除
           </button>
         </form>

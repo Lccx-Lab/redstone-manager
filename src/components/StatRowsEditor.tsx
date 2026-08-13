@@ -72,11 +72,11 @@ export function StatRowsEditor({
               onChange={(e) => updateRow(row.key, { value: e.target.value })}
               className="w-16 rounded border border-slate-300 px-1.5 py-1 text-xs text-slate-900"
             />
-            {isPercent && <span className="text-xs text-slate-400">%</span>}
+            {isPercent && <span className="text-xs text-slate-600">%</span>}
             <button
               type="button"
               onClick={() => removeRow(row.key)}
-              className="text-xs text-red-400 hover:underline"
+              className="text-xs text-red-500 hover:underline"
             >
               削除
             </button>
@@ -86,7 +86,7 @@ export function StatRowsEditor({
       <button
         type="button"
         onClick={addRow}
-        className="self-start text-xs text-slate-500 hover:underline"
+        className="self-start text-xs text-slate-600 hover:underline"
       >
         + 項目追加
       </button>

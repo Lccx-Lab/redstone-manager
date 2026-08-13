@@ -12,7 +12,7 @@ export function EquipmentSlotCard({
   onUnequip: () => void;
 }) {
   if (!equipped) {
-    return <p className="text-sm text-slate-400">未装備</p>;
+    return <p className="text-sm text-slate-600">未装備</p>;
   }
 
   const statTypeById = new Map(statTypes.map((s) => [s.id, s]));
@@ -20,9 +20,9 @@ export function EquipmentSlotCard({
   return (
     <div className="flex flex-col gap-2">
       <p className="text-sm font-medium text-slate-900">{equipped.name}</p>
-      {equipped.memo && <p className="text-xs text-slate-500">{equipped.memo}</p>}
+      {equipped.memo && <p className="text-xs text-slate-600">{equipped.memo}</p>}
       {equipped.stats.length > 0 && (
-        <ul className="flex flex-col gap-0.5 text-xs text-slate-500">
+        <ul className="flex flex-col gap-0.5 text-xs text-slate-600">
           {equipped.stats.map((s, i) => {
             const statType = statTypeById.get(s.statTypeId);
             return (
@@ -51,7 +51,7 @@ export function EquipmentSlotCard({
       <button
         type="button"
         onClick={onUnequip}
-        className="self-start text-xs text-red-400 hover:underline"
+        className="self-start text-xs text-red-500 hover:underline"
       >
         外す
       </button>

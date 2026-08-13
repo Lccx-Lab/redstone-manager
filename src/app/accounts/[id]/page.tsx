@@ -46,7 +46,7 @@ export default async function AccountDetailPage({
     <main className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-bold">{account.name}</h1>
-        <Link href="/accounts" className="text-sm text-slate-500 hover:underline">
+        <Link href="/accounts" className="text-sm text-slate-600 hover:underline">
           ← アカウント一覧
         </Link>
       </div>
@@ -89,7 +89,7 @@ export default async function AccountDetailPage({
         <summary className="cursor-pointer text-sm font-semibold text-slate-600">
           ログイン情報
         </summary>
-        <p className="mt-2 text-xs text-slate-400">
+        <p className="mt-2 text-xs text-slate-600">
           パスワード類は暗号化して保存されます。このツール以外の場所には共有しないでください。
         </p>
         <form action={saveCredentialsWithId} className="mt-3 flex flex-col gap-3">
@@ -144,13 +144,13 @@ export default async function AccountDetailPage({
           <h2 className="text-sm font-semibold text-slate-600">キャラクター一覧</h2>
           <Link
             href={`/characters/new?account_id=${account.id}`}
-            className="text-sm text-slate-500 hover:underline"
+            className="text-sm text-slate-600 hover:underline"
           >
             + キャラクター追加
           </Link>
         </div>
         {(characters ?? []).length === 0 ? (
-          <p className="text-sm text-slate-400">キャラクター未登録</p>
+          <p className="text-sm text-slate-600">キャラクター未登録</p>
         ) : (
           <ul className="flex flex-col gap-2">
             {(characters ?? []).map((character) => (
@@ -162,10 +162,10 @@ export default async function AccountDetailPage({
                   <span className="font-medium">
                     {character.name}
                     {character.level != null && (
-                      <span className="ml-1 text-xs font-normal text-slate-400">Lv.{character.level}</span>
+                      <span className="ml-1 text-xs font-normal text-slate-600">Lv.{character.level}</span>
                     )}
                   </span>
-                  {character.job && <span className="text-xs text-slate-500">{character.job}</span>}
+                  {character.job && <span className="text-xs text-slate-600">{character.job}</span>}
                 </Link>
               </li>
             ))}
