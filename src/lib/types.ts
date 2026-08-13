@@ -37,8 +37,6 @@ export type Character = {
   created_at: string;
 };
 
-export const ELEMENT_BOOST_PERCENT_CAP = 400;
-
 export type CharacterEquipment = {
   id: string;
   character_id: string;
@@ -46,8 +44,23 @@ export type CharacterEquipment = {
   ring_index: number;
   item_name: string | null;
   memo: string | null;
-  element_boost_percent: number;
   updated_at: string;
+};
+
+export type StatType = {
+  id: string;
+  owner_id: string;
+  name: string;
+  cap_percent: number | null;
+  sort_order: number;
+  created_at: string;
+};
+
+export type CharacterEquipmentStat = {
+  id: string;
+  character_equipment_id: string;
+  stat_type_id: string;
+  value_percent: number;
 };
 
 export type EquipmentScreenshot = {

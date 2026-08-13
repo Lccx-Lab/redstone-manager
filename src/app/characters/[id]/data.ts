@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { jstDateString, jstWeekStartString } from "@/lib/reset";
 import { equipmentSlotStorageKey } from "@/lib/types";
-import type { Character, DailyTask, EquipmentSlotKey, WeeklyTask } from "@/lib/types";
+import type { Character, DailyTask, EquipmentSlotKey, StatType, WeeklyTask } from "@/lib/types";
 
 export type ScreenshotWithUrl = {
   id: string;
@@ -10,10 +10,15 @@ export type ScreenshotWithUrl = {
   url: string | null;
 };
 
+export type SlotStatValue = {
+  statTypeId: string;
+  valuePercent: number;
+};
+
 export type SlotEquipment = {
   itemName: string | null;
   memo: string | null;
-  elementBoostPercent: number;
+  stats: SlotStatValue[];
 };
 
 export type StatusScreenshotWithUrl = {
@@ -30,6 +35,8 @@ export type CharacterDetail = {
   equipmentBySlot: Map<string, SlotEquipment>;
   screenshotsBySlot: Map<string, ScreenshotWithUrl[]>;
   statusScreenshots: StatusScreenshotWithUrl[];
+  statTypes: StatType[];
+  statTotals: Map<string, number>;
   dailyTasks: (DailyTask & { isDoneToday: boolean })[];
   weeklyTasks: (WeeklyTask & { isDoneThisWeek: boolean })[];
 };
@@ -56,8 +63,12 @@ export async function getCharacterDetail(characterId: string): Promise<Character
     { data: weeklyTasksRaw },
     { data: screenshotsRaw },
     { data: statusScreenshotsRaw },
+    { data: statTypesRaw },
   ] = await Promise.all([
-    supabase.from("character_equipment").select("*").eq("character_id", characterId),
+    supabase
+      .from("character_equipment")
+      .select("*, character_equipment_stats(stat_type_id, value_percent)")
+      .eq("character_id", characterId),
     supabase
       .from("daily_tasks")
       .select("*, daily_task_completions(reset_date)")
@@ -80,14 +91,28 @@ export async function getCharacterDetail(characterId: string): Promise<Character
       .select("id, character_id, storage_path, caption, created_at")
       .eq("character_id", characterId)
       .order("created_at", { ascending: false }),
+    supabase
+      .from("stat_types")
+      .select("*")
+      .order("sort_order", { ascending: true })
+      .order("name", { ascending: true }),
   ]);
 
   const equipmentBySlot = new Map<string, SlotEquipment>();
+  const statTotals = new Map<string, number>();
   for (const row of equipmentRaw ?? []) {
+    const stats = (
+      (row.character_equipment_stats ?? []) as { stat_type_id: string; value_percent: number }[]
+    ).map((s) => ({ statTypeId: s.stat_type_id, valuePercent: Number(s.value_percent) || 0 }));
+
+    for (const s of stats) {
+      statTotals.set(s.statTypeId, (statTotals.get(s.statTypeId) ?? 0) + s.valuePercent);
+    }
+
     equipmentBySlot.set(equipmentSlotStorageKey(row.slot as EquipmentSlotKey, row.ring_index), {
       itemName: row.item_name,
       memo: row.memo,
-      elementBoostPercent: Number(row.element_boost_percent) || 0,
+      stats,
     });
   }
 
@@ -149,6 +174,8 @@ export async function getCharacterDetail(characterId: string): Promise<Character
     equipmentBySlot,
     screenshotsBySlot,
     statusScreenshots,
+    statTypes: statTypesRaw ?? [],
+    statTotals,
     dailyTasks,
     weeklyTasks,
   };

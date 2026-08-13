@@ -1,8 +1,9 @@
-import type { EquipmentSlotKey } from "@/lib/types";
+import type { EquipmentSlotKey, StatType } from "@/lib/types";
 import { ZoomableImage } from "@/components/ZoomableImage";
 import type { ScreenshotWithUrl, SlotEquipment } from "./data";
 import { saveEquipmentSlotAction } from "./equipment-actions";
 import { deleteScreenshotAction, uploadScreenshotAction } from "./screenshot-actions";
+import { StatRowsEditor } from "./StatRowsEditor";
 
 export function EquipmentSlotCard({
   characterId,
@@ -11,6 +12,7 @@ export function EquipmentSlotCard({
   label,
   equipment,
   screenshots,
+  statTypes,
 }: {
   characterId: string;
   slot: EquipmentSlotKey;
@@ -18,6 +20,7 @@ export function EquipmentSlotCard({
   label: string;
   equipment: SlotEquipment | undefined;
   screenshots: ScreenshotWithUrl[];
+  statTypes: StatType[];
 }) {
   const saveAction = saveEquipmentSlotAction.bind(null, characterId, slot, ringIndex);
   const uploadAction = uploadScreenshotAction.bind(null, characterId, slot, ringIndex);
@@ -39,18 +42,7 @@ export function EquipmentSlotCard({
           placeholder="メモ（任意）"
           className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm text-slate-900"
         />
-        <label className="flex items-center gap-1 text-xs text-slate-500">
-          属性強化
-          <input
-            name="element_boost_percent"
-            type="number"
-            min={0}
-            step={0.01}
-            defaultValue={equipment?.elementBoostPercent ?? 0}
-            className="w-20 rounded border border-slate-300 px-2 py-1 text-sm text-slate-900"
-          />
-          %
-        </label>
+        <StatRowsEditor statTypeOptions={statTypes} initialStats={equipment?.stats ?? []} />
         <button
           type="submit"
           className="self-start rounded border border-slate-300 px-3 py-1 text-xs text-slate-600 hover:bg-slate-50"

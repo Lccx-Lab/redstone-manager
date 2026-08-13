@@ -15,11 +15,16 @@ export async function Nav() {
           REDSTONE Manager
         </Link>
         {user && (
-          <form action={logout}>
-            <button type="submit" className="text-sm text-slate-500 hover:underline">
-              ログアウト
-            </button>
-          </form>
+          <div className="flex items-center gap-4">
+            <Link href="/stat-types" className="text-sm text-slate-500 hover:underline">
+              ステータス項目
+            </Link>
+            <form action={logout}>
+              <button type="submit" className="text-sm text-slate-500 hover:underline">
+                ログアウト
+              </button>
+            </form>
+          </div>
         )}
       </div>
     </header>

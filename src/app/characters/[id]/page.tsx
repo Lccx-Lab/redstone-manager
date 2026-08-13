@@ -37,8 +37,16 @@ export default async function CharacterDetailPage({
   const detail = await getCharacterDetail(id);
   if (!detail) notFound();
 
-  const { character, equipmentBySlot, screenshotsBySlot, statusScreenshots, dailyTasks, weeklyTasks } =
-    detail;
+  const {
+    character,
+    equipmentBySlot,
+    screenshotsBySlot,
+    statusScreenshots,
+    statTypes,
+    statTotals,
+    dailyTasks,
+    weeklyTasks,
+  } = detail;
 
   const updateWithId = updateCharacterAction.bind(null, id);
   const deleteWithId = deleteCharacterAction.bind(null, id, character.account_id);
@@ -151,6 +159,8 @@ export default async function CharacterDetailPage({
           characterId={id}
           equipmentBySlot={equipmentBySlot}
           screenshotsBySlot={screenshotsBySlot}
+          statTypes={statTypes}
+          statTotals={statTotals}
         />
       )}
 
