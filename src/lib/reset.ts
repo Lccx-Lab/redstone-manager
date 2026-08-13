@@ -33,3 +33,20 @@ export function formatJstDateTime(date: Date): string {
   const timePart = `${pad2(shifted.getUTCHours())}:${pad2(shifted.getUTCMinutes())}`;
   return `${datePart} ${timePart}`;
 }
+
+/** <input type="datetime-local"> 用に日本時間の "YYYY-MM-DDTHH:mm" 文字列を返す */
+export function formatJstDateTimeInputValue(date: Date): string {
+  const shifted = toJstShifted(date);
+  const datePart = formatShifted(shifted);
+  const timePart = `${pad2(shifted.getUTCHours())}:${pad2(shifted.getUTCMinutes())}`;
+  return `${datePart}T${timePart}`;
+}
+
+/** <input type="datetime-local"> の値（日本時間として入力された日時）をDateに変換する */
+export function parseJstDateTimeInputValue(value: string): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value);
+  if (!match) return null;
+  const [, y, m, d, hh, mm] = match;
+  const utcMs = Date.UTC(Number(y), Number(m) - 1, Number(d), Number(hh), Number(mm)) - JST_OFFSET_MS;
+  return new Date(utcMs);
+}
