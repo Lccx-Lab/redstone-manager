@@ -50,6 +50,7 @@ export type CharacterDetail = {
   itemLibrary: LibraryItem[];
   statusScreenshots: StatusScreenshotWithUrl[];
   contentScreenshotsByCategory: Map<CharacterContentCategory, StatusScreenshotWithUrl[]>;
+  contentOptionsByCategory: Map<CharacterContentCategory, { statTypeId: string; value: number }[]>;
   statTypes: StatType[];
   statTotals: Map<string, number>;
   dailyTasks: (DailyTask & { isDoneToday: boolean })[];
@@ -78,6 +79,7 @@ export async function getCharacterDetail(characterId: string): Promise<Character
     { data: weeklyTasksRaw },
     { data: statusScreenshotsRaw },
     { data: contentScreenshotsRaw },
+    { data: contentOptionsRaw },
     { data: allCharacters },
   ] = await Promise.all([
     supabase.from("character_equipment").select("*").eq("character_id", characterId),
@@ -109,6 +111,10 @@ export async function getCharacterDetail(characterId: string): Promise<Character
       .select("id, character_id, category, storage_path, caption, created_at")
       .eq("character_id", characterId)
       .order("created_at", { ascending: false }),
+    supabase
+      .from("character_content_options")
+      .select("category, stat_type_id, value")
+      .eq("character_id", characterId),
     supabase.from("characters").select("id, name"),
   ]);
 
@@ -247,12 +253,21 @@ export async function getCharacterDetail(characterId: string): Promise<Character
     contentScreenshotsByCategory.set(category, list);
   }
 
+  const contentOptionsByCategory = new Map<CharacterContentCategory, { statTypeId: string; value: number }[]>();
+  for (const o of contentOptionsRaw ?? []) {
+    const category = o.category as CharacterContentCategory;
+    const list = contentOptionsByCategory.get(category) ?? [];
+    list.push({ statTypeId: o.stat_type_id, value: Number(o.value) || 0 });
+    contentOptionsByCategory.set(category, list);
+  }
+
   return {
     character,
     equippedBySlot,
     itemLibrary,
     statusScreenshots,
     contentScreenshotsByCategory,
+    contentOptionsByCategory,
     statTypes: statTypesRaw ?? [],
     statTotals,
     dailyTasks,

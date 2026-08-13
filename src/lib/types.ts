@@ -111,6 +111,14 @@ export type CharacterContentScreenshot = {
   created_at: string;
 };
 
+export type CharacterContentOption = {
+  id: string;
+  character_id: string;
+  category: CharacterContentCategory;
+  stat_type_id: string;
+  value: number;
+};
+
 export type DailyTask = {
   id: string;
   character_id: string;

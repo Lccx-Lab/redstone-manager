@@ -47,6 +47,7 @@ export default async function CharacterDetailPage({
     itemLibrary,
     statusScreenshots,
     contentScreenshotsByCategory,
+    contentOptionsByCategory,
     statTypes,
     statTotals,
     dailyTasks,
@@ -182,6 +183,8 @@ export default async function CharacterDetailPage({
               category={c.key}
               label={c.label}
               screenshots={contentScreenshotsByCategory.get(c.key) ?? []}
+              statTypes={statTypes}
+              options={contentOptionsByCategory.get(c.key) ?? []}
             />
           ),
       )}

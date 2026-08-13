@@ -49,3 +49,38 @@ export async function deleteContentScreenshotAction(
   if (error) throw new Error(error.message);
   revalidatePath(`/characters/${characterId}`);
 }
+
+export async function saveContentOptionsAction(
+  characterId: string,
+  category: CharacterContentCategory,
+  formData: FormData,
+) {
+  const statTypeIds = formData.getAll("stat_type[]").map(String);
+  const statValues = formData.getAll("stat_value[]").map(String);
+
+  // 同じ項目が複数行選択されていても、それぞれ別の値として保持する
+  const rows = statTypeIds
+    .map((statTypeId, i) => ({
+      character_id: characterId,
+      category,
+      stat_type_id: statTypeId,
+      value: Number(statValues[i]) || 0,
+    }))
+    .filter((row) => row.stat_type_id !== "");
+
+  const supabase = await createClient();
+
+  const { error: deleteError } = await supabase
+    .from("character_content_options")
+    .delete()
+    .eq("character_id", characterId)
+    .eq("category", category);
+  if (deleteError) throw new Error(deleteError.message);
+
+  if (rows.length > 0) {
+    const { error: insertError } = await supabase.from("character_content_options").insert(rows);
+    if (insertError) throw new Error(insertError.message);
+  }
+
+  revalidatePath(`/characters/${characterId}`);
+}
