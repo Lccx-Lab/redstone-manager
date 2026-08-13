@@ -198,6 +198,11 @@ export async function getCharacterDetail(characterId: string): Promise<Character
     }
   }
 
+  // 古龍の祝福・ネフォンクリーチャー・ミニペット・コスチューム・潜在能力は装備と同じ上限を共有するため合算する
+  for (const o of contentOptionsRaw ?? []) {
+    statTotals.set(o.stat_type_id, (statTotals.get(o.stat_type_id) ?? 0) + (Number(o.value) || 0));
+  }
+
   const dailyTasks = (dailyTasksRaw ?? []).map((task) => {
     const completions = (task.daily_task_completions ?? []) as { reset_date: string }[];
     return {

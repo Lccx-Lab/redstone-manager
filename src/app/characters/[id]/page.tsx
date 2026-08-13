@@ -184,6 +184,7 @@ export default async function CharacterDetailPage({
               label={c.label}
               screenshots={contentScreenshotsByCategory.get(c.key) ?? []}
               statTypes={statTypes}
+              statTotals={statTotals}
               options={contentOptionsByCategory.get(c.key) ?? []}
             />
           ),

@@ -1,4 +1,5 @@
 import type { CharacterContentCategory, StatType } from "@/lib/types";
+import { OptionTotalsSummary } from "@/components/OptionTotalsSummary";
 import { ScreenshotGallery } from "@/components/ScreenshotGallery";
 import { StatRowsEditor } from "@/components/StatRowsEditor";
 import {
@@ -20,6 +21,7 @@ export function ContentPanel({
   label,
   screenshots,
   statTypes,
+  statTotals,
   options,
 }: {
   characterId: string;
@@ -27,6 +29,7 @@ export function ContentPanel({
   label: string;
   screenshots: ScreenshotWithUrl[];
   statTypes: StatType[];
+  statTotals: Map<string, number>;
   options: { statTypeId: string; value: number }[];
 }) {
   const uploadAction = uploadContentScreenshotAction.bind(null, characterId, category);
@@ -35,6 +38,8 @@ export function ContentPanel({
 
   return (
     <div className="flex flex-col gap-4">
+      <OptionTotalsSummary statTypes={statTypes} statTotals={statTotals} />
+
       <section className="rounded border border-slate-200 bg-white p-4">
         <h2 className="mb-3 text-sm font-semibold text-slate-600">{label} オプション</h2>
         <form action={saveOptionsAction} className="flex flex-col gap-3">
