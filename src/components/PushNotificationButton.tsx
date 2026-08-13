@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { deletePushSubscriptionAction, savePushSubscriptionAction } from "@/app/push-actions";
+import {
+  deletePushSubscriptionAction,
+  savePushSubscriptionAction,
+  sendTestPushNotificationAction,
+} from "@/app/push-actions";
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   // 環境変数のコピペ時に混入しがちな空白・改行を除去してからデコードする
@@ -31,6 +35,8 @@ type Status = "checking" | "unsupported" | "idle" | "subscribed" | "loading";
 export function PushNotificationButton({ vapidPublicKey }: { vapidPublicKey: string }) {
   const [status, setStatus] = useState<Status>("checking");
   const [error, setError] = useState<string | null>(null);
+  const [testMessage, setTestMessage] = useState<string | null>(null);
+  const [testLoading, setTestLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -89,6 +95,20 @@ export function PushNotificationButton({ vapidPublicKey }: { vapidPublicKey: str
     }
   }
 
+  async function sendTestNotification() {
+    setError(null);
+    setTestMessage(null);
+    setTestLoading(true);
+    try {
+      await sendTestPushNotificationAction();
+      setTestMessage("テスト通知を送信しました。数秒待っても届かない場合はブラウザの通知設定をご確認ください。");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "テスト通知の送信に失敗しました");
+    } finally {
+      setTestLoading(false);
+    }
+  }
+
   async function unsubscribe() {
     setError(null);
     setStatus("loading");
@@ -111,14 +131,26 @@ export function PushNotificationButton({ vapidPublicKey }: { vapidPublicKey: str
   return (
     <div className="flex items-center gap-2">
       {error && <span className="text-xs text-red-500">{error}</span>}
+      {testMessage && <span className="text-xs text-brand-700">{testMessage}</span>}
       {status === "subscribed" ? (
-        <button
-          type="button"
-          onClick={unsubscribe}
-          className="text-xs text-slate-600 hover:underline"
-        >
-          🔔 ブラウザ通知: 有効（解除する）
-        </button>
+        <>
+          <button
+            type="button"
+            onClick={sendTestNotification}
+            disabled={testLoading}
+            className="text-xs text-brand-700 hover:underline disabled:opacity-50"
+          >
+            テスト通知を送る
+          </button>
+          <button
+            type="button"
+            onClick={unsubscribe}
+            disabled={testLoading}
+            className="text-xs text-slate-600 hover:underline disabled:opacity-50"
+          >
+            🔔 ブラウザ通知: 有効（解除する）
+          </button>
+        </>
       ) : (
         <button
           type="button"
