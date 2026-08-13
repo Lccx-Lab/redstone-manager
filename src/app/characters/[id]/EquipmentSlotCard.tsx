@@ -94,7 +94,7 @@ export function EquipmentSlotCard({
         />
         <button
           type="submit"
-          className="self-start rounded bg-slate-900 px-3 py-1 text-xs text-white hover:bg-slate-700"
+          className="self-start rounded bg-brand-600 px-3 py-1 text-xs text-white hover:bg-brand-700"
         >
           スクショ追加
         </button>

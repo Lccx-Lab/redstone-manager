@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fdfaf8;
+  --foreground: #2a1210;
 }
 
 @theme inline {
@@ -10,12 +10,25 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* REDSTONEオンライン公式サイトの配色（ロゴ・ボタン・ヘッダー等）から抽出したブランドカラー */
+  --color-brand-50: #fff4ef;
+  --color-brand-100: #ffe3d6;
+  --color-brand-200: #ffc3a8;
+  --color-brand-300: #ff9d70;
+  --color-brand-400: #ff7a4d;
+  --color-brand-500: #ff5f3c;
+  --color-brand-600: #ec2f00;
+  --color-brand-700: #b82600;
+  --color-brand-800: #8a1614;
+  --color-brand-900: #720000;
+  --color-brand-950: #470000;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #170a09;
+    --foreground: #f5e9e6;
   }
 }
 

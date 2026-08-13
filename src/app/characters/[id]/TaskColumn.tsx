@@ -58,7 +58,7 @@ export function TaskColumn({
         />
         <button
           type="submit"
-          className="rounded bg-slate-900 px-3 py-1.5 text-sm text-white hover:bg-slate-700"
+          className="rounded bg-brand-600 px-3 py-1.5 text-sm text-white hover:bg-brand-700"
         >
           追加
         </button>

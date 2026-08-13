@@ -58,7 +58,7 @@ export default async function NewCharacterPage({
           </label>
           <button
             type="submit"
-            className="mt-2 rounded bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-700"
+            className="mt-2 rounded bg-brand-600 px-4 py-2 text-sm text-white hover:bg-brand-700"
           >
             追加
           </button>

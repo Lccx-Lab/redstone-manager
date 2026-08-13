@@ -10,7 +10,7 @@ export default async function DashboardPage() {
         <h1 className="text-lg font-bold">ダッシュボード</h1>
         <Link
           href="/accounts"
-          className="rounded bg-slate-900 px-3 py-1.5 text-sm text-white hover:bg-slate-700"
+          className="rounded bg-brand-600 px-3 py-1.5 text-sm text-white hover:bg-brand-700"
         >
           アカウントを管理
         </Link>

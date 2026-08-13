@@ -20,7 +20,7 @@ function StatTotalRow({ statType, total }: { statType: StatType; total: number }
       {cap != null && (
         <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
           <div
-            className={`h-full ${isAtCap ? "bg-emerald-500" : "bg-slate-900"}`}
+            className={`h-full ${isAtCap ? "bg-emerald-500" : "bg-brand-600"}`}
             style={{ width: `${progressPercent}%` }}
           />
         </div>

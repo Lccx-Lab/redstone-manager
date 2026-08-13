@@ -104,7 +104,7 @@ export default async function CharacterDetailPage({
           </label>
           <button
             type="submit"
-            className="rounded bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-700"
+            className="rounded bg-brand-600 px-4 py-2 text-sm text-white hover:bg-brand-700"
           >
             保存
           </button>
@@ -123,7 +123,7 @@ export default async function CharacterDetailPage({
             href={`/characters/${id}?tab=${t.key}`}
             className={`px-3 py-2 text-sm ${
               activeTab === t.key
-                ? "border-b-2 border-slate-900 font-semibold text-slate-900"
+                ? "border-b-2 border-brand-600 font-semibold text-brand-700"
                 : "text-slate-500 hover:text-slate-700"
             }`}
           >
