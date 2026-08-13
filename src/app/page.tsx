@@ -1,20 +1,55 @@
 import Link from "next/link";
 import { getDashboardData } from "@/lib/data";
+import { isMainQuestAvailable } from "@/lib/mainQuest";
+import { PushNotificationButton } from "@/components/PushNotificationButton";
 
 export default async function DashboardPage() {
   const { accounts, summaries } = await getDashboardData();
+
+  const mainQuestReady = accounts.flatMap((account) =>
+    account.characters
+      .filter(
+        (c) => c.main_quest_updated_at && isMainQuestAvailable(new Date(c.main_quest_updated_at)),
+      )
+      .map((character) => ({ accountName: account.name, character })),
+  );
+
+  const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 
   return (
     <main className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-bold">ダッシュボード</h1>
-        <Link
-          href="/accounts"
-          className="rounded bg-brand-600 px-3 py-1.5 text-sm text-white hover:bg-brand-700"
-        >
-          アカウントを管理
-        </Link>
+        <div className="flex items-center gap-4">
+          {vapidPublicKey && <PushNotificationButton vapidPublicKey={vapidPublicKey} />}
+          <Link
+            href="/accounts"
+            className="rounded bg-brand-600 px-3 py-1.5 text-sm text-white hover:bg-brand-700"
+          >
+            アカウントを管理
+          </Link>
+        </div>
       </div>
+
+      {mainQuestReady.length > 0 && (
+        <section className="rounded border border-brand-200 bg-brand-50 p-4">
+          <h2 className="mb-2 text-sm font-semibold text-brand-700">
+            本日メインクエスト更新可能
+          </h2>
+          <ul className="flex flex-col gap-1">
+            {mainQuestReady.map(({ accountName, character }) => (
+              <li key={character.id}>
+                <Link
+                  href={`/characters/${character.id}`}
+                  className="text-sm text-slate-900 hover:underline"
+                >
+                  {accountName} / {character.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {accounts.length === 0 && (
         <p className="rounded border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-600">
