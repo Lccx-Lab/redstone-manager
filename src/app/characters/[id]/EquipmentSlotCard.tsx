@@ -39,6 +39,18 @@ export function EquipmentSlotCard({
           placeholder="メモ（任意）"
           className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm text-slate-900"
         />
+        <label className="flex items-center gap-1 text-xs text-slate-500">
+          属性強化
+          <input
+            name="element_boost_percent"
+            type="number"
+            min={0}
+            step={0.01}
+            defaultValue={equipment?.elementBoostPercent ?? 0}
+            className="w-20 rounded border border-slate-300 px-2 py-1 text-sm text-slate-900"
+          />
+          %
+        </label>
         <button
           type="submit"
           className="self-start rounded border border-slate-300 px-3 py-1 text-xs text-slate-600 hover:bg-slate-50"

@@ -37,6 +37,8 @@ export type Character = {
   created_at: string;
 };
 
+export const ELEMENT_BOOST_PERCENT_CAP = 400;
+
 export type CharacterEquipment = {
   id: string;
   character_id: string;
@@ -44,6 +46,7 @@ export type CharacterEquipment = {
   ring_index: number;
   item_name: string | null;
   memo: string | null;
+  element_boost_percent: number;
   updated_at: string;
 };
 

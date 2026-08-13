@@ -13,6 +13,7 @@ export type ScreenshotWithUrl = {
 export type SlotEquipment = {
   itemName: string | null;
   memo: string | null;
+  elementBoostPercent: number;
 };
 
 export type StatusScreenshotWithUrl = {
@@ -86,6 +87,7 @@ export async function getCharacterDetail(characterId: string): Promise<Character
     equipmentBySlot.set(equipmentSlotStorageKey(row.slot as EquipmentSlotKey, row.ring_index), {
       itemName: row.item_name,
       memo: row.memo,
+      elementBoostPercent: Number(row.element_boost_percent) || 0,
     });
   }
 
