@@ -1,24 +1,30 @@
 import { createClient } from "@/lib/supabase/server";
 import { jstDateString, jstWeekStartString } from "@/lib/reset";
-import { equipmentSlotStorageKey } from "@/lib/types";
+import { EQUIPMENT_SLOTS, equipmentSlotStorageKey } from "@/lib/types";
 import type { Character, DailyTask, EquipmentSlotKey, StatType, WeeklyTask } from "@/lib/types";
 
-export type ScreenshotWithUrl = {
+const SCREENSHOT_SIGNED_URL_TTL_SECONDS = 60 * 60; // 1時間
+
+function slotLabel(slot: EquipmentSlotKey): string {
+  if (slot === "ring") return "指";
+  return EQUIPMENT_SLOTS.find((s) => s.key === slot)?.label ?? slot;
+}
+
+export type EquippedItemDetail = {
   id: string;
-  caption: string | null;
-  storage_path: string;
-  url: string | null;
-};
-
-export type SlotStatValue = {
-  statTypeId: string;
-  valuePercent: number;
-};
-
-export type SlotEquipment = {
-  itemName: string | null;
+  name: string;
   memo: string | null;
-  stats: SlotStatValue[];
+  slot: EquipmentSlotKey;
+  stats: { statTypeId: string; valuePercent: number }[];
+  screenshots: { id: string; storage_path: string; caption: string | null; url: string | null }[];
+};
+
+export type LibraryItem = {
+  id: string;
+  slot: EquipmentSlotKey;
+  name: string;
+  /** このキャラのどこかに装備中なら "このキャラ / 首" 、他キャラなら "キャラB / 首" 、未装備なら null */
+  equippedOn: string | null;
 };
 
 export type StatusScreenshotWithUrl = {
@@ -32,16 +38,14 @@ export type StatusScreenshotWithUrl = {
 
 export type CharacterDetail = {
   character: Character;
-  equipmentBySlot: Map<string, SlotEquipment>;
-  screenshotsBySlot: Map<string, ScreenshotWithUrl[]>;
+  equippedBySlot: Map<string, EquippedItemDetail | null>;
+  itemLibrary: LibraryItem[];
   statusScreenshots: StatusScreenshotWithUrl[];
   statTypes: StatType[];
   statTotals: Map<string, number>;
   dailyTasks: (DailyTask & { isDoneToday: boolean })[];
   weeklyTasks: (WeeklyTask & { isDoneThisWeek: boolean })[];
 };
-
-const SCREENSHOT_SIGNED_URL_TTL_SECONDS = 60 * 60; // 1時間
 
 export async function getCharacterDetail(characterId: string): Promise<CharacterDetail | null> {
   const supabase = await createClient();
@@ -58,17 +62,22 @@ export async function getCharacterDetail(characterId: string): Promise<Character
   const weekStart = jstWeekStartString();
 
   const [
-    { data: equipmentRaw },
+    { data: ceRows },
+    { data: itemsRaw },
+    { data: statTypesRaw },
     { data: dailyTasksRaw },
     { data: weeklyTasksRaw },
-    { data: screenshotsRaw },
     { data: statusScreenshotsRaw },
-    { data: statTypesRaw },
+    { data: accountCharacters },
   ] = await Promise.all([
+    supabase.from("character_equipment").select("*").eq("character_id", characterId),
     supabase
-      .from("character_equipment")
-      .select("*, character_equipment_stats(stat_type_id, value_percent)")
-      .eq("character_id", characterId),
+      .from("equipment_items")
+      .select(
+        "*, equipment_item_stats(stat_type_id, value_percent), equipment_item_screenshots(id, storage_path, caption)",
+      )
+      .eq("account_id", character.account_id),
+    supabase.from("stat_types").select("*").order("sort_order", { ascending: true }).order("name"),
     supabase
       .from("daily_tasks")
       .select("*, daily_task_completions(reset_date)")
@@ -82,38 +91,90 @@ export async function getCharacterDetail(characterId: string): Promise<Character
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: true }),
     supabase
-      .from("equipment_screenshots")
-      .select("id, slot, ring_index, storage_path, caption")
-      .eq("character_id", characterId)
-      .order("created_at", { ascending: false }),
-    supabase
       .from("character_status_screenshots")
       .select("id, character_id, storage_path, caption, created_at")
       .eq("character_id", characterId)
       .order("created_at", { ascending: false }),
-    supabase
-      .from("stat_types")
-      .select("*")
-      .order("sort_order", { ascending: true })
-      .order("name", { ascending: true }),
+    supabase.from("characters").select("id, name").eq("account_id", character.account_id),
   ]);
 
-  const equipmentBySlot = new Map<string, SlotEquipment>();
+  const characterNameById = new Map((accountCharacters ?? []).map((c) => [c.id, c.name as string]));
+  const accountCharacterIds = (accountCharacters ?? []).map((c) => c.id);
+
+  const { data: allEquippedRows } =
+    accountCharacterIds.length > 0
+      ? await supabase
+          .from("character_equipment")
+          .select("character_id, slot, ring_index, equipped_item_id")
+          .in("character_id", accountCharacterIds)
+          .not("equipped_item_id", "is", null)
+      : {
+          data: [] as {
+            character_id: string;
+            slot: string;
+            ring_index: number;
+            equipped_item_id: string;
+          }[],
+        };
+
+  const equippedLocationByItemId = new Map<string, string>();
+  for (const row of allEquippedRows ?? []) {
+    const slot = row.slot as EquipmentSlotKey;
+    const label = slot === "ring" ? `指${row.ring_index}` : slotLabel(slot);
+    const who = row.character_id === characterId ? "このキャラ" : characterNameById.get(row.character_id) ?? "?";
+    equippedLocationByItemId.set(row.equipped_item_id, `${who} / ${label}`);
+  }
+
+  const itemDetails: EquippedItemDetail[] = await Promise.all(
+    (itemsRaw ?? []).map(async (raw) => {
+      const stats = (
+        (raw.equipment_item_stats ?? []) as { stat_type_id: string; value_percent: number }[]
+      ).map((s) => ({ statTypeId: s.stat_type_id, valuePercent: Number(s.value_percent) || 0 }));
+
+      const rawShots = (raw.equipment_item_screenshots ?? []) as {
+        id: string;
+        storage_path: string;
+        caption: string | null;
+      }[];
+      const screenshots = await Promise.all(
+        rawShots.map(async (s) => {
+          const { data: signed } = await supabase.storage
+            .from("equipment-screenshots")
+            .createSignedUrl(s.storage_path, SCREENSHOT_SIGNED_URL_TTL_SECONDS);
+          return { ...s, url: signed?.signedUrl ?? null };
+        }),
+      );
+
+      return {
+        id: raw.id,
+        name: raw.name,
+        memo: raw.memo,
+        slot: raw.slot as EquipmentSlotKey,
+        stats,
+        screenshots,
+      };
+    }),
+  );
+
+  const itemById = new Map(itemDetails.map((d) => [d.id, d]));
+  const itemLibrary: LibraryItem[] = itemDetails.map((d) => ({
+    id: d.id,
+    slot: d.slot,
+    name: d.name,
+    equippedOn: equippedLocationByItemId.get(d.id) ?? null,
+  }));
+
+  const equippedBySlot = new Map<string, EquippedItemDetail | null>();
   const statTotals = new Map<string, number>();
-  for (const row of equipmentRaw ?? []) {
-    const stats = (
-      (row.character_equipment_stats ?? []) as { stat_type_id: string; value_percent: number }[]
-    ).map((s) => ({ statTypeId: s.stat_type_id, valuePercent: Number(s.value_percent) || 0 }));
-
-    for (const s of stats) {
-      statTotals.set(s.statTypeId, (statTotals.get(s.statTypeId) ?? 0) + s.valuePercent);
+  for (const ce of ceRows ?? []) {
+    const key = equipmentSlotStorageKey(ce.slot as EquipmentSlotKey, ce.ring_index);
+    const detail = ce.equipped_item_id ? (itemById.get(ce.equipped_item_id) ?? null) : null;
+    equippedBySlot.set(key, detail);
+    if (detail) {
+      for (const s of detail.stats) {
+        statTotals.set(s.statTypeId, (statTotals.get(s.statTypeId) ?? 0) + s.valuePercent);
+      }
     }
-
-    equipmentBySlot.set(equipmentSlotStorageKey(row.slot as EquipmentSlotKey, row.ring_index), {
-      itemName: row.item_name,
-      memo: row.memo,
-      stats,
-    });
   }
 
   const dailyTasks = (dailyTasksRaw ?? []).map((task) => {
@@ -144,22 +205,6 @@ export async function getCharacterDetail(characterId: string): Promise<Character
     };
   });
 
-  const screenshotsBySlot = new Map<string, ScreenshotWithUrl[]>();
-  for (const s of screenshotsRaw ?? []) {
-    const { data: signed } = await supabase.storage
-      .from("equipment-screenshots")
-      .createSignedUrl(s.storage_path, SCREENSHOT_SIGNED_URL_TTL_SECONDS);
-    const key = equipmentSlotStorageKey(s.slot as EquipmentSlotKey, s.ring_index);
-    const list = screenshotsBySlot.get(key) ?? [];
-    list.push({
-      id: s.id,
-      caption: s.caption,
-      storage_path: s.storage_path,
-      url: signed?.signedUrl ?? null,
-    });
-    screenshotsBySlot.set(key, list);
-  }
-
   const statusScreenshots = await Promise.all(
     (statusScreenshotsRaw ?? []).map(async (s) => {
       const { data: signed } = await supabase.storage
@@ -171,8 +216,8 @@ export async function getCharacterDetail(characterId: string): Promise<Character
 
   return {
     character,
-    equipmentBySlot,
-    screenshotsBySlot,
+    equippedBySlot,
+    itemLibrary,
     statusScreenshots,
     statTypes: statTypesRaw ?? [],
     statTotals,

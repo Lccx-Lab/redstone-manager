@@ -139,6 +139,15 @@ export default async function AccountDetailPage({
         </form>
       </details>
 
+      <div>
+        <Link
+          href={`/accounts/${account.id}/items`}
+          className="text-sm text-brand-700 hover:underline"
+        >
+          装備アイテム一覧を管理 →
+        </Link>
+      </div>
+
       <section className="rounded border border-slate-200 bg-white p-4">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-slate-600">キャラクター一覧</h2>

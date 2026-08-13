@@ -1,104 +1,56 @@
-import type { EquipmentSlotKey, StatType } from "@/lib/types";
+import type { StatType } from "@/lib/types";
 import { ZoomableImage } from "@/components/ZoomableImage";
-import type { ScreenshotWithUrl, SlotEquipment } from "./data";
-import { saveEquipmentSlotAction } from "./equipment-actions";
-import { deleteScreenshotAction, uploadScreenshotAction } from "./screenshot-actions";
-import { StatRowsEditor } from "./StatRowsEditor";
+import type { EquippedItemDetail } from "./data";
 
 export function EquipmentSlotCard({
-  characterId,
-  slot,
-  ringIndex,
-  label,
-  equipment,
-  screenshots,
+  equipped,
   statTypes,
+  onUnequip,
 }: {
-  characterId: string;
-  slot: EquipmentSlotKey;
-  ringIndex: number;
-  label: string;
-  equipment: SlotEquipment | undefined;
-  screenshots: ScreenshotWithUrl[];
+  equipped: EquippedItemDetail | null;
   statTypes: StatType[];
+  onUnequip: () => void;
 }) {
-  const saveAction = saveEquipmentSlotAction.bind(null, characterId, slot, ringIndex);
-  const uploadAction = uploadScreenshotAction.bind(null, characterId, slot, ringIndex);
+  if (!equipped) {
+    return <p className="text-sm text-slate-400">未装備</p>;
+  }
+
+  const statTypeById = new Map(statTypes.map((s) => [s.id, s]));
 
   return (
-    <div className="flex flex-col gap-3 rounded border border-slate-200 bg-white p-3">
-      <p className="text-sm font-semibold text-slate-600">{label}</p>
-
-      <form action={saveAction} className="flex flex-col gap-2">
-        <input
-          name="item_name"
-          defaultValue={equipment?.itemName ?? ""}
-          placeholder="アイテム名"
-          className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm text-slate-900"
-        />
-        <input
-          name="memo"
-          defaultValue={equipment?.memo ?? ""}
-          placeholder="メモ（任意）"
-          className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm text-slate-900"
-        />
-        <StatRowsEditor statTypeOptions={statTypes} initialStats={equipment?.stats ?? []} />
-        <button
-          type="submit"
-          className="self-start rounded border border-slate-300 px-3 py-1 text-xs text-slate-600 hover:bg-slate-50"
-        >
-          保存
-        </button>
-      </form>
-
-      {screenshots.length > 0 && (
-        <div className="grid grid-cols-2 gap-2">
-          {screenshots.map((shot) => {
-            const deleteAction = deleteScreenshotAction.bind(
-              null,
-              characterId,
-              shot.id,
-              shot.storage_path,
-            );
-            return (
-              <div key={shot.id} className="flex flex-col gap-1">
-                {shot.url ? (
-                  <ZoomableImage
-                    src={shot.url}
-                    alt={shot.caption ?? label}
-                    className="aspect-video w-full rounded object-cover"
-                  />
-                ) : (
-                  <div className="flex aspect-video w-full items-center justify-center rounded bg-slate-100 text-[10px] text-slate-400">
-                    読み込み失敗
-                  </div>
-                )}
-                {shot.caption && <p className="truncate text-[11px] text-slate-500">{shot.caption}</p>}
-                <form action={deleteAction}>
-                  <button type="submit" className="text-[11px] text-red-400 hover:underline">
-                    削除
-                  </button>
-                </form>
-              </div>
-            );
-          })}
+    <div className="flex flex-col gap-2">
+      <p className="text-sm font-medium text-slate-900">{equipped.name}</p>
+      {equipped.memo && <p className="text-xs text-slate-500">{equipped.memo}</p>}
+      {equipped.stats.length > 0 && (
+        <ul className="flex flex-col gap-0.5 text-xs text-slate-500">
+          {equipped.stats.map((s) => (
+            <li key={s.statTypeId}>
+              {statTypeById.get(s.statTypeId)?.name ?? "?"}: {s.valuePercent}%
+            </li>
+          ))}
+        </ul>
+      )}
+      {equipped.screenshots.length > 0 && (
+        <div className="grid grid-cols-2 gap-1">
+          {equipped.screenshots.map((shot) =>
+            shot.url ? (
+              <ZoomableImage
+                key={shot.id}
+                src={shot.url}
+                alt={shot.caption ?? equipped.name}
+                className="aspect-video w-full rounded object-cover"
+              />
+            ) : null,
+          )}
         </div>
       )}
-
-      <form action={uploadAction} className="flex flex-col gap-2 border-t border-slate-100 pt-2">
-        <input type="file" name="file" accept="image/*" required className="text-xs text-slate-900" />
-        <input
-          name="caption"
-          placeholder="メモ（任意）"
-          className="w-full rounded border border-slate-300 px-2 py-1 text-xs text-slate-900"
-        />
-        <button
-          type="submit"
-          className="self-start rounded bg-brand-600 px-3 py-1 text-xs text-white hover:bg-brand-700"
-        >
-          スクショ追加
-        </button>
-      </form>
+      <button
+        type="button"
+        onClick={onUnequip}
+        className="self-start text-xs text-red-400 hover:underline"
+      >
+        外す
+      </button>
     </div>
   );
 }

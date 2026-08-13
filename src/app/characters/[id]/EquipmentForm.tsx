@@ -1,7 +1,6 @@
-import { EQUIPMENT_SLOTS, RING_SLOT_COUNT, equipmentSlotStorageKey } from "@/lib/types";
 import type { StatType } from "@/lib/types";
-import type { ScreenshotWithUrl, SlotEquipment } from "./data";
-import { EquipmentSlotCard } from "./EquipmentSlotCard";
+import type { EquippedItemDetail, LibraryItem } from "./data";
+import { EquipmentBoard } from "./EquipmentBoard";
 
 function StatTotalRow({ statType, total }: { statType: StatType; total: number }) {
   const cap = statType.cap_percent;
@@ -31,18 +30,17 @@ function StatTotalRow({ statType, total }: { statType: StatType; total: number }
 
 export function EquipmentForm({
   characterId,
-  equipmentBySlot,
-  screenshotsBySlot,
+  equippedBySlot,
+  itemLibrary,
   statTypes,
   statTotals,
 }: {
   characterId: string;
-  equipmentBySlot: Map<string, SlotEquipment>;
-  screenshotsBySlot: Map<string, ScreenshotWithUrl[]>;
+  equippedBySlot: Map<string, EquippedItemDetail | null>;
+  itemLibrary: LibraryItem[];
   statTypes: StatType[];
   statTotals: Map<string, number>;
 }) {
-  const emptyScreenshots: ScreenshotWithUrl[] = [];
   const statTypesWithTotals = statTypes.filter((st) => (statTotals.get(st.id) ?? 0) > 0);
 
   return (
@@ -55,44 +53,12 @@ export function EquipmentForm({
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {EQUIPMENT_SLOTS.map((slot) => {
-          const key = equipmentSlotStorageKey(slot.key, 0);
-          return (
-            <EquipmentSlotCard
-              key={slot.key}
-              characterId={characterId}
-              slot={slot.key}
-              ringIndex={0}
-              label={slot.label}
-              equipment={equipmentBySlot.get(key)}
-              screenshots={screenshotsBySlot.get(key) ?? emptyScreenshots}
-              statTypes={statTypes}
-            />
-          );
-        })}
-      </div>
-
-      <div>
-        <p className="mb-2 text-sm font-semibold text-slate-600">指（10スロット）</p>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: RING_SLOT_COUNT }, (_, i) => i + 1).map((ringIndex) => {
-            const key = equipmentSlotStorageKey("ring", ringIndex);
-            return (
-              <EquipmentSlotCard
-                key={ringIndex}
-                characterId={characterId}
-                slot="ring"
-                ringIndex={ringIndex}
-                label={`指 ${ringIndex}`}
-                equipment={equipmentBySlot.get(key)}
-                screenshots={screenshotsBySlot.get(key) ?? emptyScreenshots}
-                statTypes={statTypes}
-              />
-            );
-          })}
-        </div>
-      </div>
+      <EquipmentBoard
+        characterId={characterId}
+        equippedBySlot={equippedBySlot}
+        itemLibrary={itemLibrary}
+        statTypes={statTypes}
+      />
     </div>
   );
 }

@@ -39,8 +39,8 @@ export default async function CharacterDetailPage({
 
   const {
     character,
-    equipmentBySlot,
-    screenshotsBySlot,
+    equippedBySlot,
+    itemLibrary,
     statusScreenshots,
     statTypes,
     statTotals,
@@ -157,8 +157,8 @@ export default async function CharacterDetailPage({
       {activeTab === "equipment" && (
         <EquipmentForm
           characterId={id}
-          equipmentBySlot={equipmentBySlot}
-          screenshotsBySlot={screenshotsBySlot}
+          equippedBySlot={equippedBySlot}
+          itemLibrary={itemLibrary}
           statTypes={statTypes}
           statTotals={statTotals}
         />

@@ -42,8 +42,7 @@ export type CharacterEquipment = {
   character_id: string;
   slot: EquipmentSlotKey;
   ring_index: number;
-  item_name: string | null;
-  memo: string | null;
+  equipped_item_id: string | null;
   updated_at: string;
 };
 
@@ -56,21 +55,27 @@ export type StatType = {
   created_at: string;
 };
 
-export type CharacterEquipmentStat = {
+export type EquipmentItem = {
   id: string;
-  character_equipment_id: string;
+  account_id: string;
+  slot: EquipmentSlotKey;
+  name: string;
+  memo: string | null;
+  created_at: string;
+};
+
+export type EquipmentItemStat = {
+  id: string;
+  equipment_item_id: string;
   stat_type_id: string;
   value_percent: number;
 };
 
-export type EquipmentScreenshot = {
+export type EquipmentItemScreenshot = {
   id: string;
-  character_id: string;
-  slot: EquipmentSlotKey;
-  ring_index: number;
+  equipment_item_id: string;
   storage_path: string;
   caption: string | null;
-  taken_at: string | null;
   created_at: string;
 };
 
