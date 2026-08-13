@@ -8,6 +8,16 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const cleaned = base64String.trim().replace(/\s+/g, "");
   const padding = "=".repeat((4 - (cleaned.length % 4)) % 4);
   const base64 = (cleaned + padding).replace(/-/g, "+").replace(/_/g, "/");
+
+  if (!/^[A-Za-z0-9+/]*={0,2}$/.test(base64)) {
+    const invalidChars = Array.from(new Set(cleaned.split("").filter((c) => !/[A-Za-z0-9_-]/.test(c))));
+    throw new Error(
+      `VAPID公開鍵の形式が不正です（長さ:${cleaned.length}文字, 先頭:"${cleaned.slice(0, 6)}", 末尾:"${cleaned.slice(-6)}"${
+        invalidChars.length > 0 ? `, 不正な文字:${invalidChars.map((c) => JSON.stringify(c)).join(",")}` : ""
+      }）。NEXT_PUBLIC_VAPID_PUBLIC_KEY の値を確認してください。`,
+    );
+  }
+
   const rawData = atob(base64);
   const outputArray = new Uint8Array(rawData.length);
   for (let i = 0; i < rawData.length; i++) {
