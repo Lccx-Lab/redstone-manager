@@ -24,8 +24,8 @@ export async function Nav() {
             <Link href="/equipment-items" className="text-sm text-brand-100 hover:text-white hover:underline">
               装備アイテム
             </Link>
-            <Link href="/stat-types" className="text-sm text-brand-100 hover:text-white hover:underline">
-              ステータス項目
+            <Link href="/option-types" className="text-sm text-brand-100 hover:text-white hover:underline">
+              オプション項目
             </Link>
             <form action={logout}>
               <button type="submit" className="text-sm text-brand-100 hover:text-white hover:underline">

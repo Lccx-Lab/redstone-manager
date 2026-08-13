@@ -88,7 +88,7 @@ export function EquipmentBoard({
         </h2>
         {itemLibrary.length === 0 ? (
           <p className="text-sm text-slate-400">
-            装備アイテムがまだありません。アカウント詳細の「装備アイテムを管理」から作成してください。
+            装備アイテムがまだありません。ヘッダーの「装備アイテム」から作成してください。
           </p>
         ) : (
           <div className="flex flex-wrap gap-2">
@@ -106,10 +106,13 @@ export function EquipmentBoard({
                 className="cursor-grab rounded border border-slate-300 bg-slate-50 px-2 py-1 text-xs text-slate-700 active:cursor-grabbing"
                 title={item.equippedOn ? `装備中: ${item.equippedOn}` : "未装備"}
               >
-                {item.name}
-                {item.equippedOn && (
-                  <span className="ml-1 text-[10px] text-brand-700">（{item.equippedOn}）</span>
-                )}
+                <div>
+                  {item.name}
+                  {item.equippedOn && (
+                    <span className="ml-1 text-[10px] text-brand-700">（{item.equippedOn}）</span>
+                  )}
+                </div>
+                {item.memo && <div className="text-[10px] text-slate-400">{item.memo}</div>}
               </div>
             ))}
           </div>

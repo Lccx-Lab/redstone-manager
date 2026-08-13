@@ -23,11 +23,15 @@ export function EquipmentSlotCard({
       {equipped.memo && <p className="text-xs text-slate-500">{equipped.memo}</p>}
       {equipped.stats.length > 0 && (
         <ul className="flex flex-col gap-0.5 text-xs text-slate-500">
-          {equipped.stats.map((s) => (
-            <li key={s.statTypeId}>
-              {statTypeById.get(s.statTypeId)?.name ?? "?"}: {s.valuePercent}%
-            </li>
-          ))}
+          {equipped.stats.map((s, i) => {
+            const statType = statTypeById.get(s.statTypeId);
+            return (
+              <li key={`${s.statTypeId}-${i}`}>
+                {statType?.name ?? "?"}: {s.value}
+                {statType?.is_percent !== false && "%"}
+              </li>
+            );
+          })}
         </ul>
       )}
       {equipped.screenshots.length > 0 && (

@@ -45,19 +45,14 @@ export async function updateItemAction(itemId: string, formData: FormData) {
   const statTypeIds = formData.getAll("stat_type[]").map(String);
   const statValues = formData.getAll("stat_value[]").map(String);
 
-  // 同じステータス項目が複数行選択された場合はユニーク制約に抵触するため合算する
-  const mergedStats = new Map<string, number>();
-  statTypeIds.forEach((statTypeId, i) => {
-    if (statTypeId === "") return;
-    const value = Number(statValues[i]) || 0;
-    mergedStats.set(statTypeId, (mergedStats.get(statTypeId) ?? 0) + value);
-  });
-
-  const statRows = Array.from(mergedStats.entries()).map(([statTypeId, valuePercent]) => ({
-    equipment_item_id: itemId,
-    stat_type_id: statTypeId,
-    value_percent: valuePercent,
-  }));
+  // 同じ項目が複数行選択されていても、それぞれ別の値として保持する
+  const statRows = statTypeIds
+    .map((statTypeId, i) => ({
+      equipment_item_id: itemId,
+      stat_type_id: statTypeId,
+      value: Number(statValues[i]) || 0,
+    }))
+    .filter((row) => row.stat_type_id !== "");
 
   const { error: deleteError } = await supabase
     .from("equipment_item_stats")
@@ -96,7 +91,7 @@ export async function duplicateItemAction(itemId: string) {
   const supabase = await createClient();
   const { data: source, error: sourceError } = await supabase
     .from("equipment_items")
-    .select("*, equipment_item_stats(stat_type_id, value_percent)")
+    .select("*, equipment_item_stats(stat_type_id, value)")
     .eq("id", itemId)
     .single();
   if (sourceError || !source) throw new Error(sourceError?.message ?? "item not found");
@@ -115,14 +110,14 @@ export async function duplicateItemAction(itemId: string) {
 
   const stats = (source.equipment_item_stats ?? []) as {
     stat_type_id: string;
-    value_percent: number;
+    value: number;
   }[];
   if (stats.length > 0) {
     const { error: statsError } = await supabase.from("equipment_item_stats").insert(
       stats.map((s) => ({
         equipment_item_id: newItem.id,
         stat_type_id: s.stat_type_id,
-        value_percent: s.value_percent,
+        value: s.value,
       })),
     );
     if (statsError) throw new Error(statsError.message);

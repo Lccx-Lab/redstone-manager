@@ -18,7 +18,7 @@ export default async function EquipmentItemsPage() {
     supabase
       .from("equipment_items")
       .select(
-        "*, equipment_item_stats(stat_type_id, value_percent), equipment_item_screenshots(id, storage_path, caption)",
+        "*, equipment_item_stats(stat_type_id, value), equipment_item_screenshots(id, storage_path, caption)",
       )
       .order("slot", { ascending: true })
       .order("created_at", { ascending: true }),
@@ -69,8 +69,8 @@ export default async function EquipmentItemsPage() {
         }),
       );
       const stats = (
-        (item.equipment_item_stats ?? []) as { stat_type_id: string; value_percent: number }[]
-      ).map((s) => ({ statTypeId: s.stat_type_id, valuePercent: Number(s.value_percent) || 0 }));
+        (item.equipment_item_stats ?? []) as { stat_type_id: string; value: number }[]
+      ).map((s) => ({ statTypeId: s.stat_type_id, value: Number(s.value) || 0 }));
 
       return { item, screenshots, stats };
     }),

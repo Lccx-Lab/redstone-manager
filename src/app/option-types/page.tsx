@@ -1,9 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
-import { createStatTypeAction, deleteStatTypeAction, updateStatTypeAction } from "./actions";
+import { createOptionTypeAction, deleteOptionTypeAction, updateOptionTypeAction } from "./actions";
 
-export default async function StatTypesPage() {
+export default async function OptionTypesPage() {
   const supabase = await createClient();
-  const { data: statTypes } = await supabase
+  const { data: optionTypes } = await supabase
     .from("stat_types")
     .select("*")
     .order("sort_order", { ascending: true })
@@ -12,15 +12,15 @@ export default async function StatTypesPage() {
   return (
     <main className="flex flex-col gap-6">
       <div>
-        <h1 className="text-lg font-bold">ステータス項目マスタ</h1>
+        <h1 className="text-lg font-bold">オプション項目マスタ</h1>
         <p className="mt-1 text-sm text-slate-500">
-          装備の各スロットに設定できるステータス項目（例: 火属性強化、攻撃速度など）と、その上限値を管理します。
+          装備の各スロットに設定できるオプション項目（例: 火属性強化、攻撃速度など）と、その単位・上限値を管理します。
         </p>
       </div>
 
       <section className="rounded border border-slate-200 bg-white p-4">
         <h2 className="mb-3 text-sm font-semibold text-slate-600">新規項目追加</h2>
-        <form action={createStatTypeAction} className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <form action={createOptionTypeAction} className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <label className="flex flex-1 flex-col gap-1 text-sm text-slate-600">
             項目名
             <input
@@ -31,9 +31,20 @@ export default async function StatTypesPage() {
             />
           </label>
           <label className="flex flex-col gap-1 text-sm text-slate-600">
-            上限%（任意）
+            単位
+            <select
+              name="unit"
+              defaultValue="percent"
+              className="rounded border border-slate-300 px-3 py-2 text-slate-900"
+            >
+              <option value="percent">%（割合）</option>
+              <option value="number">数値</option>
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 text-sm text-slate-600">
+            上限値（任意）
             <input
-              name="cap_percent"
+              name="cap_value"
               type="number"
               min={0}
               step={0.01}
@@ -51,17 +62,17 @@ export default async function StatTypesPage() {
       </section>
 
       <section className="flex flex-col gap-2">
-        {(statTypes ?? []).length === 0 && (
+        {(optionTypes ?? []).length === 0 && (
           <p className="rounded border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
-            まだステータス項目がありません。
+            まだオプション項目がありません。
           </p>
         )}
-        {(statTypes ?? []).map((statType) => {
-          const updateWithId = updateStatTypeAction.bind(null, statType.id);
-          const deleteWithId = deleteStatTypeAction.bind(null, statType.id);
+        {(optionTypes ?? []).map((optionType) => {
+          const updateWithId = updateOptionTypeAction.bind(null, optionType.id);
+          const deleteWithId = deleteOptionTypeAction.bind(null, optionType.id);
           return (
             <div
-              key={statType.id}
+              key={optionType.id}
               className="flex flex-col gap-2 rounded border border-slate-200 bg-white p-3 sm:flex-row sm:items-end"
             >
               <form action={updateWithId} className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-end">
@@ -70,18 +81,29 @@ export default async function StatTypesPage() {
                   <input
                     name="name"
                     required
-                    defaultValue={statType.name}
+                    defaultValue={optionType.name}
                     className="rounded border border-slate-300 px-3 py-2 text-slate-900"
                   />
                 </label>
                 <label className="flex flex-col gap-1 text-sm text-slate-600">
-                  上限%
+                  単位
+                  <select
+                    name="unit"
+                    defaultValue={optionType.is_percent ? "percent" : "number"}
+                    className="rounded border border-slate-300 px-3 py-2 text-slate-900"
+                  >
+                    <option value="percent">%（割合）</option>
+                    <option value="number">数値</option>
+                  </select>
+                </label>
+                <label className="flex flex-col gap-1 text-sm text-slate-600">
+                  上限値
                   <input
-                    name="cap_percent"
+                    name="cap_value"
                     type="number"
                     min={0}
                     step={0.01}
-                    defaultValue={statType.cap_percent ?? ""}
+                    defaultValue={optionType.cap_value ?? ""}
                     placeholder="上限なし"
                     className="w-32 rounded border border-slate-300 px-3 py-2 text-slate-900"
                   />

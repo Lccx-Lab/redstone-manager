@@ -3,7 +3,8 @@ import type { EquippedItemDetail, LibraryItem } from "./data";
 import { EquipmentBoard } from "./EquipmentBoard";
 
 function StatTotalRow({ statType, total }: { statType: StatType; total: number }) {
-  const cap = statType.cap_percent;
+  const cap = statType.cap_value;
+  const unit = statType.is_percent ? "%" : "";
   const isAtCap = cap != null && total >= cap;
   const progressPercent = cap != null ? Math.min(100, (total / cap) * 100) : 0;
 
@@ -12,7 +13,9 @@ function StatTotalRow({ statType, total }: { statType: StatType; total: number }
       <div className="flex items-center justify-between text-sm">
         <span className="text-slate-600">{statType.name}</span>
         <span className={isAtCap ? "font-semibold text-emerald-600" : "text-slate-700"}>
-          {total.toFixed(2)}%{cap != null && ` / ${cap}%`}
+          {total.toFixed(2)}
+          {unit}
+          {cap != null && ` / ${cap}${unit}`}
           {isAtCap && "（上限到達）"}
         </span>
       </div>

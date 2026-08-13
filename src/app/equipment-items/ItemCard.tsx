@@ -25,7 +25,7 @@ export function ItemCard({
 }: {
   item: EquipmentItem;
   statTypes: StatType[];
-  stats: { statTypeId: string; valuePercent: number }[];
+  stats: { statTypeId: string; value: number }[];
   screenshots: ItemScreenshot[];
   equippedInfo: string | null;
 }) {
@@ -33,6 +33,7 @@ export function ItemCard({
   const deleteAction = deleteItemAction.bind(null, item.id);
   const duplicateAction = duplicateItemAction.bind(null, item.id);
   const uploadAction = uploadItemScreenshotAction.bind(null, item.id);
+  const statTypeOptions = statTypes.map((st) => ({ id: st.id, name: st.name, isPercent: st.is_percent }));
 
   return (
     <div className="flex flex-col gap-3 rounded border border-slate-200 bg-white p-3">
@@ -54,7 +55,7 @@ export function ItemCard({
           placeholder="メモ（任意）"
           className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm text-slate-900"
         />
-        <StatRowsEditor statTypeOptions={statTypes} initialStats={stats} />
+        <StatRowsEditor statTypeOptions={statTypeOptions} initialStats={stats} />
         <button
           type="submit"
           className="self-start rounded border border-slate-300 px-3 py-1 text-xs text-slate-600 hover:bg-slate-50"

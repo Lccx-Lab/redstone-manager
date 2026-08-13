@@ -15,7 +15,7 @@ export type EquippedItemDetail = {
   name: string;
   memo: string | null;
   slot: EquipmentSlotKey;
-  stats: { statTypeId: string; valuePercent: number }[];
+  stats: { statTypeId: string; value: number }[];
   screenshots: { id: string; storage_path: string; caption: string | null; url: string | null }[];
 };
 
@@ -23,6 +23,7 @@ export type LibraryItem = {
   id: string;
   slot: EquipmentSlotKey;
   name: string;
+  memo: string | null;
   /** このキャラのどこかに装備中なら "このキャラ / 首" 、他キャラなら "キャラB / 首" 、未装備なら null */
   equippedOn: string | null;
 };
@@ -74,7 +75,7 @@ export async function getCharacterDetail(characterId: string): Promise<Character
     supabase
       .from("equipment_items")
       .select(
-        "*, equipment_item_stats(stat_type_id, value_percent), equipment_item_screenshots(id, storage_path, caption)",
+        "*, equipment_item_stats(stat_type_id, value), equipment_item_screenshots(id, storage_path, caption)",
       ),
     supabase.from("stat_types").select("*").order("sort_order", { ascending: true }).order("name"),
     supabase
@@ -127,8 +128,8 @@ export async function getCharacterDetail(characterId: string): Promise<Character
   const itemDetails: EquippedItemDetail[] = await Promise.all(
     (itemsRaw ?? []).map(async (raw) => {
       const stats = (
-        (raw.equipment_item_stats ?? []) as { stat_type_id: string; value_percent: number }[]
-      ).map((s) => ({ statTypeId: s.stat_type_id, valuePercent: Number(s.value_percent) || 0 }));
+        (raw.equipment_item_stats ?? []) as { stat_type_id: string; value: number }[]
+      ).map((s) => ({ statTypeId: s.stat_type_id, value: Number(s.value) || 0 }));
 
       const rawShots = (raw.equipment_item_screenshots ?? []) as {
         id: string;
@@ -160,6 +161,7 @@ export async function getCharacterDetail(characterId: string): Promise<Character
     id: d.id,
     slot: d.slot,
     name: d.name,
+    memo: d.memo,
     equippedOn: equippedLocationByItemId.get(d.id) ?? null,
   }));
 
@@ -171,7 +173,7 @@ export async function getCharacterDetail(characterId: string): Promise<Character
     equippedBySlot.set(key, detail);
     if (detail) {
       for (const s of detail.stats) {
-        statTotals.set(s.statTypeId, (statTotals.get(s.statTypeId) ?? 0) + s.valuePercent);
+        statTotals.set(s.statTypeId, (statTotals.get(s.statTypeId) ?? 0) + s.value);
       }
     }
   }

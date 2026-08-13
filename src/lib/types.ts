@@ -50,7 +50,8 @@ export type StatType = {
   id: string;
   owner_id: string;
   name: string;
-  cap_percent: number | null;
+  cap_value: number | null;
+  is_percent: boolean;
   sort_order: number;
   created_at: string;
 };
@@ -68,7 +69,7 @@ export type EquipmentItemStat = {
   id: string;
   equipment_item_id: string;
   stat_type_id: string;
-  value_percent: number;
+  value: number;
 };
 
 export type EquipmentItemScreenshot = {
