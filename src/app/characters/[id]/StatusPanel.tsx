@@ -1,4 +1,5 @@
 import type { StatusScreenshot } from "@/lib/types";
+import { ZoomableImage } from "@/components/ZoomableImage";
 import {
   deleteStatusScreenshotAction,
   updateLevelAction,
@@ -81,8 +82,7 @@ export function StatusPanel({
               return (
                 <div key={shot.id} className="flex flex-col gap-2 rounded border border-slate-200 p-3">
                   {shot.url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <ZoomableImage
                       src={shot.url}
                       alt={shot.caption ?? "ステータス画面"}
                       className="aspect-video w-full rounded object-cover"

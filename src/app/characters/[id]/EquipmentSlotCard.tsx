@@ -1,4 +1,5 @@
 import type { EquipmentSlotKey } from "@/lib/types";
+import { ZoomableImage } from "@/components/ZoomableImage";
 import type { ScreenshotWithUrl, SlotEquipment } from "./data";
 import { saveEquipmentSlotAction } from "./equipment-actions";
 import { deleteScreenshotAction, uploadScreenshotAction } from "./screenshot-actions";
@@ -58,8 +59,7 @@ export function EquipmentSlotCard({
             return (
               <div key={shot.id} className="flex flex-col gap-1">
                 {shot.url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <ZoomableImage
                     src={shot.url}
                     alt={shot.caption ?? label}
                     className="aspect-video w-full rounded object-cover"
