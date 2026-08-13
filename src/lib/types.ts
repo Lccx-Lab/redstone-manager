@@ -92,6 +92,25 @@ export type StatusScreenshot = {
   created_at: string;
 };
 
+export const CHARACTER_CONTENT_CATEGORIES = [
+  { key: "ancient_dragon_blessing", label: "古龍の祝福" },
+  { key: "nephon_creature", label: "ネフォンクリーチャー" },
+  { key: "mini_pet", label: "ミニペット" },
+  { key: "costume", label: "コスチューム" },
+  { key: "potential", label: "潜在能力" },
+] as const;
+
+export type CharacterContentCategory = (typeof CHARACTER_CONTENT_CATEGORIES)[number]["key"];
+
+export type CharacterContentScreenshot = {
+  id: string;
+  character_id: string;
+  category: CharacterContentCategory;
+  storage_path: string;
+  caption: string | null;
+  created_at: string;
+};
+
 export type DailyTask = {
   id: string;
   character_id: string;

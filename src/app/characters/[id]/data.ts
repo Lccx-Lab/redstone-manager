@@ -1,7 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { jstDateString, jstWeekStartString } from "@/lib/reset";
 import { EQUIPMENT_SLOTS, equipmentSlotStorageKey } from "@/lib/types";
-import type { Character, DailyTask, EquipmentSlotKey, StatType, WeeklyTask } from "@/lib/types";
+import type {
+  Character,
+  CharacterContentCategory,
+  DailyTask,
+  EquipmentSlotKey,
+  StatType,
+  WeeklyTask,
+} from "@/lib/types";
 
 const SCREENSHOT_SIGNED_URL_TTL_SECONDS = 60 * 60; // 1時間
 
@@ -42,6 +49,7 @@ export type CharacterDetail = {
   equippedBySlot: Map<string, EquippedItemDetail | null>;
   itemLibrary: LibraryItem[];
   statusScreenshots: StatusScreenshotWithUrl[];
+  contentScreenshotsByCategory: Map<CharacterContentCategory, StatusScreenshotWithUrl[]>;
   statTypes: StatType[];
   statTotals: Map<string, number>;
   dailyTasks: (DailyTask & { isDoneToday: boolean })[];
@@ -69,6 +77,7 @@ export async function getCharacterDetail(characterId: string): Promise<Character
     { data: dailyTasksRaw },
     { data: weeklyTasksRaw },
     { data: statusScreenshotsRaw },
+    { data: contentScreenshotsRaw },
     { data: allCharacters },
   ] = await Promise.all([
     supabase.from("character_equipment").select("*").eq("character_id", characterId),
@@ -93,6 +102,11 @@ export async function getCharacterDetail(characterId: string): Promise<Character
     supabase
       .from("character_status_screenshots")
       .select("id, character_id, storage_path, caption, created_at")
+      .eq("character_id", characterId)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("character_content_screenshots")
+      .select("id, character_id, category, storage_path, caption, created_at")
       .eq("character_id", characterId)
       .order("created_at", { ascending: false }),
     supabase.from("characters").select("id, name"),
@@ -215,11 +229,30 @@ export async function getCharacterDetail(characterId: string): Promise<Character
     }),
   );
 
+  const contentScreenshotsByCategory = new Map<CharacterContentCategory, StatusScreenshotWithUrl[]>();
+  for (const s of contentScreenshotsRaw ?? []) {
+    const { data: signed } = await supabase.storage
+      .from("equipment-screenshots")
+      .createSignedUrl(s.storage_path, SCREENSHOT_SIGNED_URL_TTL_SECONDS);
+    const category = s.category as CharacterContentCategory;
+    const list = contentScreenshotsByCategory.get(category) ?? [];
+    list.push({
+      id: s.id,
+      character_id: s.character_id,
+      storage_path: s.storage_path,
+      caption: s.caption,
+      created_at: s.created_at,
+      url: signed?.signedUrl ?? null,
+    });
+    contentScreenshotsByCategory.set(category, list);
+  }
+
   return {
     character,
     equippedBySlot,
     itemLibrary,
     statusScreenshots,
+    contentScreenshotsByCategory,
     statTypes: statTypesRaw ?? [],
     statTotals,
     dailyTasks,

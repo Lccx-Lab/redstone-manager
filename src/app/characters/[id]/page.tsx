@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { CHARACTER_CONTENT_CATEGORIES } from "@/lib/types";
 import { getCharacterDetail } from "./data";
 import { updateCharacterAction, deleteCharacterAction } from "./actions";
 import {
@@ -14,12 +15,15 @@ import { TaskColumn } from "./TaskColumn";
 import { EquipmentForm } from "./EquipmentForm";
 import { StatusPanel } from "./StatusPanel";
 import { MainQuestPanel } from "./MainQuestPanel";
+import { ContentPanel } from "./ContentPanel";
 
-const TABS = [
+const FIXED_TABS = [
   { key: "tasks", label: "タスク" },
   { key: "equipment", label: "装備" },
   { key: "status", label: "ステータス" },
 ] as const;
+
+const TABS = [...FIXED_TABS, ...CHARACTER_CONTENT_CATEGORIES] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
 
@@ -42,6 +46,7 @@ export default async function CharacterDetailPage({
     equippedBySlot,
     itemLibrary,
     statusScreenshots,
+    contentScreenshotsByCategory,
     statTypes,
     statTotals,
     dailyTasks,
@@ -116,7 +121,7 @@ export default async function CharacterDetailPage({
         </form>
       </details>
 
-      <nav className="flex gap-2 border-b border-slate-200">
+      <nav className="flex flex-wrap gap-2 border-b border-slate-200">
         {TABS.map((t) => (
           <Link
             key={t.key}
@@ -166,6 +171,19 @@ export default async function CharacterDetailPage({
 
       {activeTab === "status" && (
         <StatusPanel characterId={id} level={character.level} screenshots={statusScreenshots} />
+      )}
+
+      {CHARACTER_CONTENT_CATEGORIES.map(
+        (c) =>
+          activeTab === c.key && (
+            <ContentPanel
+              key={c.key}
+              characterId={id}
+              category={c.key}
+              label={c.label}
+              screenshots={contentScreenshotsByCategory.get(c.key) ?? []}
+            />
+          ),
       )}
     </main>
   );
