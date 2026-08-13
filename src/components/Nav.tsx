@@ -21,6 +21,9 @@ export async function Nav() {
         </Link>
         {user && (
           <div className="flex items-center gap-4">
+            <Link href="/equipment-items" className="text-sm text-brand-100 hover:text-white hover:underline">
+              装備アイテム
+            </Link>
             <Link href="/stat-types" className="text-sm text-brand-100 hover:text-white hover:underline">
               ステータス項目
             </Link>

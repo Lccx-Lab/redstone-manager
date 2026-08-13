@@ -1,31 +1,28 @@
--- 装備アイテムマスタ化（アカウント単位）＋ドラッグ&ドロップ装備対応
+-- 装備アイテムマスタ化（所有者単位・全アカウント共通）＋ドラッグ&ドロップ装備対応
 -- character_equipment に直接ぶら下がっていた item_name / character_equipment_stats /
 -- equipment_screenshots を、独立した「装備アイテム」エンティティ（equipment_items）に正規化する。
+-- アイテムは stat_types と同様に所有者（ユーザー）単位で管理し、どのアカウント・キャラからでも装備できる。
 -- 既存データは自動的に equipment_items へ移行される。
 -- Supabase の SQL Editor で実行するか `supabase db push` で適用してください。
 
 -- ============ equipment_items ============
 create table equipment_items (
   id uuid primary key default gen_random_uuid(),
-  account_id uuid not null references accounts(id) on delete cascade,
+  owner_id uuid not null references auth.users(id) on delete cascade,
   slot equipment_slot not null,
   name text not null,
   memo text,
   created_at timestamptz not null default now()
 );
 
-create index equipment_items_account_id_idx on equipment_items(account_id);
+create index equipment_items_owner_id_idx on equipment_items(owner_id);
 
 alter table equipment_items enable row level security;
 
 create policy "equipment_items_owner_all" on equipment_items
   for all
-  using (exists (
-    select 1 from accounts a where a.id = equipment_items.account_id and a.owner_id = auth.uid()
-  ))
-  with check (exists (
-    select 1 from accounts a where a.id = equipment_items.account_id and a.owner_id = auth.uid()
-  ));
+  using (owner_id = auth.uid())
+  with check (owner_id = auth.uid());
 
 -- ============ equipment_item_stats ============
 create table equipment_item_stats (
@@ -44,13 +41,11 @@ create policy "equipment_item_stats_owner_all" on equipment_item_stats
   for all
   using (exists (
     select 1 from equipment_items ei
-    join accounts a on a.id = ei.account_id
-    where ei.id = equipment_item_stats.equipment_item_id and a.owner_id = auth.uid()
+    where ei.id = equipment_item_stats.equipment_item_id and ei.owner_id = auth.uid()
   ))
   with check (exists (
     select 1 from equipment_items ei
-    join accounts a on a.id = ei.account_id
-    where ei.id = equipment_item_stats.equipment_item_id and a.owner_id = auth.uid()
+    where ei.id = equipment_item_stats.equipment_item_id and ei.owner_id = auth.uid()
   ));
 
 -- ============ equipment_item_screenshots ============
@@ -70,13 +65,11 @@ create policy "equipment_item_screenshots_owner_all" on equipment_item_screensho
   for all
   using (exists (
     select 1 from equipment_items ei
-    join accounts a on a.id = ei.account_id
-    where ei.id = equipment_item_screenshots.equipment_item_id and a.owner_id = auth.uid()
+    where ei.id = equipment_item_screenshots.equipment_item_id and ei.owner_id = auth.uid()
   ))
   with check (exists (
     select 1 from equipment_items ei
-    join accounts a on a.id = ei.account_id
-    where ei.id = equipment_item_screenshots.equipment_item_id and a.owner_id = auth.uid()
+    where ei.id = equipment_item_screenshots.equipment_item_id and ei.owner_id = auth.uid()
   ));
 
 -- ============ character_equipment: アイテム参照に変更 ============
@@ -90,8 +83,8 @@ create unique index character_equipment_equipped_item_unique
 -- ---- 既存データの移行 ----
 alter table equipment_items add column _migration_source_ce_id uuid;
 
-insert into equipment_items (account_id, slot, name, memo, _migration_source_ce_id)
-select c.account_id, ce.slot, ce.item_name, ce.memo, ce.id
+insert into equipment_items (owner_id, slot, name, memo, _migration_source_ce_id)
+select c.owner_id, ce.slot, ce.item_name, ce.memo, ce.id
 from character_equipment ce
 join characters c on c.id = ce.character_id
 where ce.item_name is not null and ce.item_name <> '';

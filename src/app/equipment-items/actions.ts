@@ -1,30 +1,36 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { EquipmentSlotKey } from "@/lib/types";
 
 const BUCKET = "equipment-screenshots";
 
-export async function createItemAction(accountId: string, formData: FormData) {
+export async function createItemAction(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const slot = String(formData.get("slot") ?? "") as EquipmentSlotKey;
   if (!name || !slot) return;
   const memo = String(formData.get("memo") ?? "").trim() || null;
 
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
   const { error } = await supabase.from("equipment_items").insert({
-    account_id: accountId,
+    owner_id: user.id,
     slot,
     name,
     memo,
   });
   if (error) throw new Error(error.message);
 
-  revalidatePath(`/accounts/${accountId}/items`);
+  revalidatePath("/equipment-items");
 }
 
-export async function updateItemAction(itemId: string, accountId: string, formData: FormData) {
+export async function updateItemAction(itemId: string, formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return;
   const memo = String(formData.get("memo") ?? "").trim() || null;
@@ -64,11 +70,11 @@ export async function updateItemAction(itemId: string, accountId: string, formDa
     if (insertError) throw new Error(insertError.message);
   }
 
-  revalidatePath(`/accounts/${accountId}/items`);
+  revalidatePath("/equipment-items");
   revalidatePath("/", "layout");
 }
 
-export async function deleteItemAction(itemId: string, accountId: string) {
+export async function deleteItemAction(itemId: string) {
   const supabase = await createClient();
 
   const { data: shots } = await supabase
@@ -82,14 +88,11 @@ export async function deleteItemAction(itemId: string, accountId: string) {
   const { error } = await supabase.from("equipment_items").delete().eq("id", itemId);
   if (error) throw new Error(error.message);
 
-  revalidatePath(`/accounts/${accountId}/items`);
+  revalidatePath("/equipment-items");
   revalidatePath("/", "layout");
 }
 
-export async function copyItemAction(itemId: string, formData: FormData) {
-  const targetAccountId = String(formData.get("target_account_id") ?? "");
-  if (!targetAccountId) return;
-
+export async function duplicateItemAction(itemId: string) {
   const supabase = await createClient();
   const { data: source, error: sourceError } = await supabase
     .from("equipment_items")
@@ -101,9 +104,9 @@ export async function copyItemAction(itemId: string, formData: FormData) {
   const { data: newItem, error: insertError } = await supabase
     .from("equipment_items")
     .insert({
-      account_id: targetAccountId,
+      owner_id: source.owner_id,
       slot: source.slot,
-      name: source.name,
+      name: `${source.name}のコピー`,
       memo: source.memo,
     })
     .select("id")
@@ -125,20 +128,16 @@ export async function copyItemAction(itemId: string, formData: FormData) {
     if (statsError) throw new Error(statsError.message);
   }
 
-  revalidatePath(`/accounts/${targetAccountId}/items`);
+  revalidatePath("/equipment-items");
 }
 
-export async function uploadItemScreenshotAction(
-  itemId: string,
-  accountId: string,
-  formData: FormData,
-) {
+export async function uploadItemScreenshotAction(itemId: string, formData: FormData) {
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) return;
   const caption = String(formData.get("caption") ?? "").trim() || null;
 
   const extension = file.name.includes(".") ? file.name.split(".").pop() : "png";
-  const path = `${accountId}/items/${itemId}/${crypto.randomUUID()}.${extension}`;
+  const path = `items/${itemId}/${crypto.randomUUID()}.${extension}`;
 
   const supabase = await createClient();
   const { error: uploadError } = await supabase.storage
@@ -153,12 +152,11 @@ export async function uploadItemScreenshotAction(
   });
   if (insertError) throw new Error(insertError.message);
 
-  revalidatePath(`/accounts/${accountId}/items`);
+  revalidatePath("/equipment-items");
 }
 
 export async function deleteItemScreenshotAction(
   itemId: string,
-  accountId: string,
   screenshotId: string,
   storagePath: string,
 ) {
@@ -169,5 +167,5 @@ export async function deleteItemScreenshotAction(
     .delete()
     .eq("id", screenshotId);
   if (error) throw new Error(error.message);
-  revalidatePath(`/accounts/${accountId}/items`);
+  revalidatePath("/equipment-items");
 }

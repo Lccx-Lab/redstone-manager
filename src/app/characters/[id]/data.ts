@@ -68,15 +68,14 @@ export async function getCharacterDetail(characterId: string): Promise<Character
     { data: dailyTasksRaw },
     { data: weeklyTasksRaw },
     { data: statusScreenshotsRaw },
-    { data: accountCharacters },
+    { data: allCharacters },
   ] = await Promise.all([
     supabase.from("character_equipment").select("*").eq("character_id", characterId),
     supabase
       .from("equipment_items")
       .select(
         "*, equipment_item_stats(stat_type_id, value_percent), equipment_item_screenshots(id, storage_path, caption)",
-      )
-      .eq("account_id", character.account_id),
+      ),
     supabase.from("stat_types").select("*").order("sort_order", { ascending: true }).order("name"),
     supabase
       .from("daily_tasks")
@@ -95,18 +94,18 @@ export async function getCharacterDetail(characterId: string): Promise<Character
       .select("id, character_id, storage_path, caption, created_at")
       .eq("character_id", characterId)
       .order("created_at", { ascending: false }),
-    supabase.from("characters").select("id, name").eq("account_id", character.account_id),
+    supabase.from("characters").select("id, name"),
   ]);
 
-  const characterNameById = new Map((accountCharacters ?? []).map((c) => [c.id, c.name as string]));
-  const accountCharacterIds = (accountCharacters ?? []).map((c) => c.id);
+  const characterNameById = new Map((allCharacters ?? []).map((c) => [c.id, c.name as string]));
+  const allCharacterIds = (allCharacters ?? []).map((c) => c.id);
 
   const { data: allEquippedRows } =
-    accountCharacterIds.length > 0
+    allCharacterIds.length > 0
       ? await supabase
           .from("character_equipment")
           .select("character_id, slot, ring_index, equipped_item_id")
-          .in("character_id", accountCharacterIds)
+          .in("character_id", allCharacterIds)
           .not("equipped_item_id", "is", null)
       : {
           data: [] as {

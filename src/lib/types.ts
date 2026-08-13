@@ -57,7 +57,7 @@ export type StatType = {
 
 export type EquipmentItem = {
   id: string;
-  account_id: string;
+  owner_id: string;
   slot: EquipmentSlotKey;
   name: string;
   memo: string | null;

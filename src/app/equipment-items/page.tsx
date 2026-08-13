@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EQUIPMENT_SLOTS } from "@/lib/types";
 import type { EquipmentSlotKey } from "@/lib/types";
@@ -13,42 +11,23 @@ function slotLabel(slot: EquipmentSlotKey): string {
   return EQUIPMENT_SLOTS.find((s) => s.key === slot)?.label ?? slot;
 }
 
-export default async function AccountItemsPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id: accountId } = await params;
+export default async function EquipmentItemsPage() {
   const supabase = await createClient();
 
-  const { data: account } = await supabase
-    .from("accounts")
-    .select("*")
-    .eq("id", accountId)
-    .single();
-  if (!account) notFound();
-
-  const [
-    { data: itemsRaw },
-    { data: statTypes },
-    { data: characters },
-    { data: otherAccountsRaw },
-  ] = await Promise.all([
+  const [{ data: itemsRaw }, { data: statTypes }, { data: characters }] = await Promise.all([
     supabase
       .from("equipment_items")
       .select(
         "*, equipment_item_stats(stat_type_id, value_percent), equipment_item_screenshots(id, storage_path, caption)",
       )
-      .eq("account_id", accountId)
       .order("slot", { ascending: true })
       .order("created_at", { ascending: true }),
     supabase.from("stat_types").select("*").order("sort_order", { ascending: true }).order("name"),
-    supabase.from("characters").select("id, name").eq("account_id", accountId),
-    supabase.from("accounts").select("id, name").neq("id", accountId).order("created_at"),
+    supabase.from("characters").select("id, name"),
   ]);
 
   const characterIds = (characters ?? []).map((c) => c.id);
-  const characterNameById = new Map((characters ?? []).map((c) => [c.id, c.name]));
+  const characterNameById = new Map((characters ?? []).map((c) => [c.id, c.name as string]));
 
   const { data: equippedRows } =
     characterIds.length > 0
@@ -57,7 +36,14 @@ export default async function AccountItemsPage({
           .select("character_id, slot, ring_index, equipped_item_id")
           .in("character_id", characterIds)
           .not("equipped_item_id", "is", null)
-      : { data: [] as { character_id: string; slot: string; ring_index: number; equipped_item_id: string }[] };
+      : {
+          data: [] as {
+            character_id: string;
+            slot: string;
+            ring_index: number;
+            equipped_item_id: string;
+          }[],
+        };
 
   const equippedInfoByItemId = new Map<string, string>();
   for (const row of equippedRows ?? []) {
@@ -99,23 +85,19 @@ export default async function AccountItemsPage({
   }
 
   const slotOrder: EquipmentSlotKey[] = [...EQUIPMENT_SLOTS.map((s) => s.key), "ring"];
-  const otherAccounts = otherAccountsRaw ?? [];
 
   return (
     <main className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-bold">{account.name} の装備アイテム</h1>
-        <Link href={`/accounts/${accountId}`} className="text-sm text-slate-500 hover:underline">
-          ← アカウント詳細
-        </Link>
+      <div>
+        <h1 className="text-lg font-bold">装備アイテム</h1>
+        <p className="mt-1 text-sm text-slate-500">
+          全アカウント・全キャラクター共通のアイテムです。どのキャラの装備タブからでも同じアイテムを装備できます。
+        </p>
       </div>
 
       <section className="rounded border border-slate-200 bg-white p-4">
         <h2 className="mb-3 text-sm font-semibold text-slate-600">新規アイテム追加</h2>
-        <form
-          action={createItemAction.bind(null, accountId)}
-          className="flex flex-col gap-3 sm:flex-row sm:items-end"
-        >
+        <form action={createItemAction} className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <label className="flex flex-col gap-1 text-sm text-slate-600">
             部位
             <select
@@ -174,12 +156,10 @@ export default async function AccountItemsPage({
                   <ItemCard
                     key={item.id}
                     item={item}
-                    accountId={accountId}
                     statTypes={statTypes ?? []}
                     stats={stats}
                     screenshots={screenshots}
                     equippedInfo={equippedInfoByItemId.get(item.id) ?? null}
-                    otherAccounts={otherAccounts}
                   />
                 ))}
               </div>

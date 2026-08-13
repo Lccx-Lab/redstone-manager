@@ -2,9 +2,9 @@ import type { EquipmentItem, StatType } from "@/lib/types";
 import { StatRowsEditor } from "@/components/StatRowsEditor";
 import { ZoomableImage } from "@/components/ZoomableImage";
 import {
-  copyItemAction,
   deleteItemAction,
   deleteItemScreenshotAction,
+  duplicateItemAction,
   updateItemAction,
   uploadItemScreenshotAction,
 } from "./actions";
@@ -18,25 +18,21 @@ type ItemScreenshot = {
 
 export function ItemCard({
   item,
-  accountId,
   statTypes,
   stats,
   screenshots,
   equippedInfo,
-  otherAccounts,
 }: {
   item: EquipmentItem;
-  accountId: string;
   statTypes: StatType[];
   stats: { statTypeId: string; valuePercent: number }[];
   screenshots: ItemScreenshot[];
   equippedInfo: string | null;
-  otherAccounts: { id: string; name: string }[];
 }) {
-  const updateAction = updateItemAction.bind(null, item.id, accountId);
-  const deleteAction = deleteItemAction.bind(null, item.id, accountId);
-  const copyAction = copyItemAction.bind(null, item.id);
-  const uploadAction = uploadItemScreenshotAction.bind(null, item.id, accountId);
+  const updateAction = updateItemAction.bind(null, item.id);
+  const deleteAction = deleteItemAction.bind(null, item.id);
+  const duplicateAction = duplicateItemAction.bind(null, item.id);
+  const uploadAction = uploadItemScreenshotAction.bind(null, item.id);
 
   return (
     <div className="flex flex-col gap-3 rounded border border-slate-200 bg-white p-3">
@@ -58,10 +54,7 @@ export function ItemCard({
           placeholder="メモ（任意）"
           className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm text-slate-900"
         />
-        <StatRowsEditor
-          statTypeOptions={statTypes}
-          initialStats={stats}
-        />
+        <StatRowsEditor statTypeOptions={statTypes} initialStats={stats} />
         <button
           type="submit"
           className="self-start rounded border border-slate-300 px-3 py-1 text-xs text-slate-600 hover:bg-slate-50"
@@ -76,7 +69,6 @@ export function ItemCard({
             const deleteShotAction = deleteItemScreenshotAction.bind(
               null,
               item.id,
-              accountId,
               shot.id,
               shot.storage_path,
             );
@@ -120,29 +112,12 @@ export function ItemCard({
         </button>
       </form>
 
-      <div className="flex items-center gap-2 border-t border-slate-100 pt-2">
-        {otherAccounts.length > 0 && (
-          <form action={copyAction} className="flex flex-1 items-center gap-1">
-            <select
-              name="target_account_id"
-              required
-              defaultValue=""
-              className="flex-1 rounded border border-slate-300 px-1.5 py-1 text-xs text-slate-900"
-            >
-              <option value="" disabled>
-                コピー先アカウント
-              </option>
-              {otherAccounts.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.name}
-                </option>
-              ))}
-            </select>
-            <button type="submit" className="text-xs text-slate-500 hover:underline">
-              コピー
-            </button>
-          </form>
-        )}
+      <div className="flex items-center gap-3 border-t border-slate-100 pt-2">
+        <form action={duplicateAction}>
+          <button type="submit" className="text-xs text-slate-500 hover:underline">
+            複製
+          </button>
+        </form>
         <form action={deleteAction}>
           <button type="submit" className="text-xs text-red-400 hover:underline">
             削除
