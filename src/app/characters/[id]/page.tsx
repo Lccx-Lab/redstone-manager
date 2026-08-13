@@ -12,12 +12,10 @@ import {
 } from "./tasks-actions";
 import { TaskColumn } from "./TaskColumn";
 import { EquipmentForm } from "./EquipmentForm";
-import { ScreenshotGallery } from "./ScreenshotGallery";
 
 const TABS = [
   { key: "tasks", label: "タスク" },
   { key: "equipment", label: "装備" },
-  { key: "screenshots", label: "スクリーンショット" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -36,7 +34,7 @@ export default async function CharacterDetailPage({
   const detail = await getCharacterDetail(id);
   if (!detail) notFound();
 
-  const { character, equipment, dailyTasks, weeklyTasks, screenshots } = detail;
+  const { character, equipmentBySlot, screenshotsBySlot, dailyTasks, weeklyTasks } = detail;
 
   const updateWithId = updateCharacterAction.bind(null, id);
   const deleteWithId = deleteCharacterAction.bind(null, id, character.account_id);
@@ -136,10 +134,12 @@ export default async function CharacterDetailPage({
         </div>
       )}
 
-      {activeTab === "equipment" && <EquipmentForm characterId={id} equipment={equipment} />}
-
-      {activeTab === "screenshots" && (
-        <ScreenshotGallery characterId={id} screenshots={screenshots} />
+      {activeTab === "equipment" && (
+        <EquipmentForm
+          characterId={id}
+          equipmentBySlot={equipmentBySlot}
+          screenshotsBySlot={screenshotsBySlot}
+        />
       )}
     </main>
   );

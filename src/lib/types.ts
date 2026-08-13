@@ -47,11 +47,17 @@ export type CharacterEquipment = {
 export type EquipmentScreenshot = {
   id: string;
   character_id: string;
+  slot: EquipmentSlotKey;
+  ring_index: number;
   storage_path: string;
   caption: string | null;
   taken_at: string | null;
   created_at: string;
 };
+
+export function equipmentSlotStorageKey(slot: EquipmentSlotKey, ringIndex: number): string {
+  return `${slot}:${ringIndex}`;
+}
 
 export type DailyTask = {
   id: string;
