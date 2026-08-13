@@ -13,6 +13,7 @@ import {
 import { TaskColumn } from "./TaskColumn";
 import { EquipmentForm } from "./EquipmentForm";
 import { StatusPanel } from "./StatusPanel";
+import { MainQuestPanel } from "./MainQuestPanel";
 
 const TABS = [
   { key: "tasks", label: "タスク" },
@@ -124,21 +125,24 @@ export default async function CharacterDetailPage({
       </nav>
 
       {activeTab === "tasks" && (
-        <div className="flex flex-col gap-4 sm:flex-row">
-          <TaskColumn
-            title="デイリータスク（毎日 JST 00:00 リセット）"
-            tasks={dailyTasks.map((t) => ({ id: t.id, name: t.name, isDone: t.isDoneToday }))}
-            onCreate={createDailyWithId}
-            onToggle={toggleDailyWithId}
-            onDelete={deleteDailyWithId}
-          />
-          <TaskColumn
-            title="ウィークリータスク（毎週月曜 JST 00:00 リセット）"
-            tasks={weeklyTasks.map((t) => ({ id: t.id, name: t.name, isDone: t.isDoneThisWeek }))}
-            onCreate={createWeeklyWithId}
-            onToggle={toggleWeeklyWithId}
-            onDelete={deleteWeeklyWithId}
-          />
+        <div className="flex flex-col gap-4">
+          <MainQuestPanel characterId={id} mainQuestUpdatedAt={character.main_quest_updated_at} />
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <TaskColumn
+              title="デイリータスク（毎日 JST 00:00 リセット）"
+              tasks={dailyTasks.map((t) => ({ id: t.id, name: t.name, isDone: t.isDoneToday }))}
+              onCreate={createDailyWithId}
+              onToggle={toggleDailyWithId}
+              onDelete={deleteDailyWithId}
+            />
+            <TaskColumn
+              title="ウィークリータスク（毎週月曜 JST 00:00 リセット）"
+              tasks={weeklyTasks.map((t) => ({ id: t.id, name: t.name, isDone: t.isDoneThisWeek }))}
+              onCreate={createWeeklyWithId}
+              onToggle={toggleWeeklyWithId}
+              onDelete={deleteWeeklyWithId}
+            />
+          </div>
         </div>
       )}
 

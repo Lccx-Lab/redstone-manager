@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/main-quest-notify",
+      "schedule": "5 15 * * *"
+    }
+  ]
+}

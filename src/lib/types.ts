@@ -31,6 +31,8 @@ export type Character = {
   job: string | null;
   memo: string | null;
   level: number | null;
+  main_quest_updated_at: string | null;
+  main_quest_notification_sent: boolean;
   sort_order: number;
   created_at: string;
 };

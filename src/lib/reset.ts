@@ -25,3 +25,11 @@ export function jstWeekStartString(date: Date = new Date()): string {
   shifted.setUTCDate(shifted.getUTCDate() - daysSinceMonday);
   return formatShifted(shifted);
 }
+
+/** 表示用に日本時間の "YYYY-MM-DD HH:mm" 文字列を返す */
+export function formatJstDateTime(date: Date): string {
+  const shifted = toJstShifted(date);
+  const datePart = formatShifted(shifted);
+  const timePart = `${pad2(shifted.getUTCHours())}:${pad2(shifted.getUTCMinutes())}`;
+  return `${datePart} ${timePart}`;
+}
