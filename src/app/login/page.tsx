@@ -28,7 +28,7 @@ export default async function LoginPage({
             type="email"
             required
             autoComplete="email"
-            className="rounded border border-slate-300 px-3 py-2 text-slate-900"
+            className="rounded border border-slate-300 bg-white px-3 py-2 text-slate-900"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm text-slate-600">
@@ -38,7 +38,7 @@ export default async function LoginPage({
             type="password"
             required
             autoComplete="current-password"
-            className="rounded border border-slate-300 px-3 py-2 text-slate-900"
+            className="rounded border border-slate-300 bg-white px-3 py-2 text-slate-900"
           />
         </label>
         <button

@@ -25,12 +25,8 @@
   --color-brand-950: #470000;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #170a09;
-    --foreground: #f5e9e6;
-  }
-}
+/* このアプリはライトテーマのみを実装しているため、OS側のダーク設定に関わらず
+   常にライト配色で表示する（暗い背景に暗い文字が重なって読めなくなるのを防ぐ） */
 
 body {
   background: var(--background);
