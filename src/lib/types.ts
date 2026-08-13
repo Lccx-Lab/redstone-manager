@@ -30,6 +30,7 @@ export type Character = {
   name: string;
   job: string | null;
   memo: string | null;
+  level: number | null;
   sort_order: number;
   created_at: string;
 };
@@ -58,6 +59,14 @@ export type EquipmentScreenshot = {
 export function equipmentSlotStorageKey(slot: EquipmentSlotKey, ringIndex: number): string {
   return `${slot}:${ringIndex}`;
 }
+
+export type StatusScreenshot = {
+  id: string;
+  character_id: string;
+  storage_path: string;
+  caption: string | null;
+  created_at: string;
+};
 
 export type DailyTask = {
   id: string;

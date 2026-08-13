@@ -86,7 +86,12 @@ export default async function AccountDetailPage({
                   href={`/characters/${character.id}`}
                   className="flex items-center justify-between rounded border border-slate-100 px-3 py-2 hover:bg-slate-50"
                 >
-                  <span className="font-medium">{character.name}</span>
+                  <span className="font-medium">
+                    {character.name}
+                    {character.level != null && (
+                      <span className="ml-1 text-xs font-normal text-slate-400">Lv.{character.level}</span>
+                    )}
+                  </span>
                   {character.job && <span className="text-xs text-slate-500">{character.job}</span>}
                 </Link>
               </li>

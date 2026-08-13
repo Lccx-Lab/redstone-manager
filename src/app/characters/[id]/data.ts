@@ -15,10 +15,20 @@ export type SlotEquipment = {
   memo: string | null;
 };
 
+export type StatusScreenshotWithUrl = {
+  id: string;
+  character_id: string;
+  storage_path: string;
+  caption: string | null;
+  created_at: string;
+  url: string | null;
+};
+
 export type CharacterDetail = {
   character: Character;
   equipmentBySlot: Map<string, SlotEquipment>;
   screenshotsBySlot: Map<string, ScreenshotWithUrl[]>;
+  statusScreenshots: StatusScreenshotWithUrl[];
   dailyTasks: (DailyTask & { isDoneToday: boolean })[];
   weeklyTasks: (WeeklyTask & { isDoneThisWeek: boolean })[];
 };
@@ -44,6 +54,7 @@ export async function getCharacterDetail(characterId: string): Promise<Character
     { data: dailyTasksRaw },
     { data: weeklyTasksRaw },
     { data: screenshotsRaw },
+    { data: statusScreenshotsRaw },
   ] = await Promise.all([
     supabase.from("character_equipment").select("*").eq("character_id", characterId),
     supabase
@@ -61,6 +72,11 @@ export async function getCharacterDetail(characterId: string): Promise<Character
     supabase
       .from("equipment_screenshots")
       .select("id, slot, ring_index, storage_path, caption")
+      .eq("character_id", characterId)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("character_status_screenshots")
+      .select("id, character_id, storage_path, caption, created_at")
       .eq("character_id", characterId)
       .order("created_at", { ascending: false }),
   ]);
@@ -117,10 +133,20 @@ export async function getCharacterDetail(characterId: string): Promise<Character
     screenshotsBySlot.set(key, list);
   }
 
+  const statusScreenshots = await Promise.all(
+    (statusScreenshotsRaw ?? []).map(async (s) => {
+      const { data: signed } = await supabase.storage
+        .from("equipment-screenshots")
+        .createSignedUrl(s.storage_path, SCREENSHOT_SIGNED_URL_TTL_SECONDS);
+      return { ...s, url: signed?.signedUrl ?? null };
+    }),
+  );
+
   return {
     character,
     equipmentBySlot,
     screenshotsBySlot,
+    statusScreenshots,
     dailyTasks,
     weeklyTasks,
   };

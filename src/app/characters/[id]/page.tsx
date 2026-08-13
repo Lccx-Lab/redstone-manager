@@ -12,10 +12,12 @@ import {
 } from "./tasks-actions";
 import { TaskColumn } from "./TaskColumn";
 import { EquipmentForm } from "./EquipmentForm";
+import { StatusPanel } from "./StatusPanel";
 
 const TABS = [
   { key: "tasks", label: "タスク" },
   { key: "equipment", label: "装備" },
+  { key: "status", label: "ステータス" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -34,7 +36,8 @@ export default async function CharacterDetailPage({
   const detail = await getCharacterDetail(id);
   if (!detail) notFound();
 
-  const { character, equipmentBySlot, screenshotsBySlot, dailyTasks, weeklyTasks } = detail;
+  const { character, equipmentBySlot, screenshotsBySlot, statusScreenshots, dailyTasks, weeklyTasks } =
+    detail;
 
   const updateWithId = updateCharacterAction.bind(null, id);
   const deleteWithId = deleteCharacterAction.bind(null, id, character.account_id);
@@ -51,7 +54,12 @@ export default async function CharacterDetailPage({
         <Link href="/" className="text-sm text-slate-500 hover:underline">
           ← ダッシュボード
         </Link>
-        <h1 className="mt-1 text-lg font-bold">{character.name}</h1>
+        <h1 className="mt-1 text-lg font-bold">
+          {character.name}
+          {character.level != null && (
+            <span className="ml-2 text-sm font-normal text-slate-500">Lv.{character.level}</span>
+          )}
+        </h1>
         {character.job && <p className="text-sm text-slate-500">{character.job}</p>}
       </div>
 
@@ -140,6 +148,10 @@ export default async function CharacterDetailPage({
           equipmentBySlot={equipmentBySlot}
           screenshotsBySlot={screenshotsBySlot}
         />
+      )}
+
+      {activeTab === "status" && (
+        <StatusPanel characterId={id} level={character.level} screenshots={statusScreenshots} />
       )}
     </main>
   );
