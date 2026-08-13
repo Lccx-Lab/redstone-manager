@@ -14,7 +14,7 @@ export default async function DashboardPage() {
       .map((character) => ({ accountName: account.name, character })),
   );
 
-  const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY?.trim();
 
   return (
     <main className="flex flex-col gap-6">

@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { deletePushSubscriptionAction, savePushSubscriptionAction } from "@/app/push-actions";
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  // 環境変数のコピペ時に混入しがちな空白・改行を除去してからデコードする
+  const cleaned = base64String.trim().replace(/\s+/g, "");
+  const padding = "=".repeat((4 - (cleaned.length % 4)) % 4);
+  const base64 = (cleaned + padding).replace(/-/g, "+").replace(/_/g, "/");
   const rawData = atob(base64);
   const outputArray = new Uint8Array(rawData.length);
   for (let i = 0; i < rawData.length; i++) {
