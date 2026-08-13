@@ -81,7 +81,7 @@ export function EquipmentSlotCard({
         </div>
       )}
 
-      <form action={uploadAction} encType="multipart/form-data" className="flex flex-col gap-2 border-t border-slate-100 pt-2">
+      <form action={uploadAction} className="flex flex-col gap-2 border-t border-slate-100 pt-2">
         <input type="file" name="file" accept="image/*" required className="text-xs text-slate-900" />
         <input
           name="caption"
