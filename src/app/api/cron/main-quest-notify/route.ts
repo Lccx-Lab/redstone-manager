@@ -23,12 +23,24 @@ export async function GET(request: NextRequest) {
 
   const now = new Date();
   let notified = 0;
+  const ownerEmailCache = new Map<string, string | null>();
+
+  async function getOwnerEmail(ownerId: string): Promise<string | null> {
+    if (ownerEmailCache.has(ownerId)) return ownerEmailCache.get(ownerId) ?? null;
+    const { data, error: userError } = await supabase.auth.admin.getUserById(ownerId);
+    const email = userError ? null : (data.user?.email ?? null);
+    ownerEmailCache.set(ownerId, email);
+    return email;
+  }
 
   for (const character of characters ?? []) {
     const lastUpdated = new Date(character.main_quest_updated_at as string);
     if (!isMainQuestAvailable(lastUpdated, now)) continue;
 
-    await sendMainQuestReminderEmail(character.name);
+    const ownerEmail = await getOwnerEmail(character.owner_id);
+    if (ownerEmail) {
+      await sendMainQuestReminderEmail(character.name, ownerEmail);
+    }
 
     const { data: subscriptions } = await supabase
       .from("push_subscriptions")

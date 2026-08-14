@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "REDSTONE Manager",
-  description: "REDSTONEオンライン アカウント・キャラクター管理ツール",
+  description: "REDSTONEオンライン アカウント・キャラクター管理ツール（非公式ファンツール）",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

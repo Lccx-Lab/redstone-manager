@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { login } from "./actions";
 
 export default async function LoginPage({
@@ -48,6 +49,13 @@ export default async function LoginPage({
           ログイン
         </button>
       </form>
+
+      <p className="text-sm text-slate-600">
+        アカウントをお持ちでない方は{" "}
+        <Link href="/signup" className="text-brand-700 hover:underline">
+          新規登録
+        </Link>
+      </p>
     </main>
   );
 }

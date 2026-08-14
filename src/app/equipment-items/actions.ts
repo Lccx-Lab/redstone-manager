@@ -131,10 +131,15 @@ export async function uploadItemScreenshotAction(itemId: string, formData: FormD
   if (!(file instanceof File) || file.size === 0) return;
   const caption = String(formData.get("caption") ?? "").trim() || null;
 
-  const extension = file.name.includes(".") ? file.name.split(".").pop() : "png";
-  const path = `items/${itemId}/${crypto.randomUUID()}.${extension}`;
-
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const extension = file.name.includes(".") ? file.name.split(".").pop() : "png";
+  const path = `${user.id}/items/${itemId}/${crypto.randomUUID()}.${extension}`;
+
   const { error: uploadError } = await supabase.storage
     .from(BUCKET)
     .upload(path, file, { contentType: file.type || undefined });

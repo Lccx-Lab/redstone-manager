@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 const BUCKET = "equipment-screenshots";
@@ -22,10 +23,15 @@ export async function uploadStatusScreenshotAction(characterId: string, formData
   if (!(file instanceof File) || file.size === 0) return;
   const caption = String(formData.get("caption") ?? "").trim() || null;
 
-  const extension = file.name.includes(".") ? file.name.split(".").pop() : "png";
-  const path = `${characterId}/status/${crypto.randomUUID()}.${extension}`;
-
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const extension = file.name.includes(".") ? file.name.split(".").pop() : "png";
+  const path = `${user.id}/status/${characterId}/${crypto.randomUUID()}.${extension}`;
+
   const { error: uploadError } = await supabase.storage
     .from(BUCKET)
     .upload(path, file, { contentType: file.type || undefined });

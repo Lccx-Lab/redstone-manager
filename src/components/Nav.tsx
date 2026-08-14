@@ -15,6 +15,9 @@ export async function Nav() {
       className="border-b border-brand-950"
       style={{ background: "linear-gradient(to bottom, #8a1614 0%, #470000 100%)" }}
     >
+      <p className="border-b border-brand-950/50 bg-black/20 px-4 py-1 text-center text-xs text-brand-100">
+        本サイトは非公式のファンツールです。REDSTONE Online 運営とは関係ありません。
+      </p>
       <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-4 py-2">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/redstone-logo.png" alt="REDSTONE" width={102} height={66} priority />

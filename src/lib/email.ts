@@ -1,10 +1,9 @@
 import { Resend } from "resend";
 
-export async function sendMainQuestReminderEmail(characterName: string): Promise<void> {
+export async function sendMainQuestReminderEmail(characterName: string, to: string): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.NOTIFICATION_EMAIL;
   if (!apiKey || !to) {
-    console.warn("RESEND_API_KEY または NOTIFICATION_EMAIL が未設定のためメール送信をスキップしました");
+    console.warn("RESEND_API_KEY が未設定、または送信先メールアドレスがないためメール送信をスキップしました");
     return;
   }
 

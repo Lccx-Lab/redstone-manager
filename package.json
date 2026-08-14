@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "migrate:storage": "node --env-file=.env.local scripts/migrate-storage-paths.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",

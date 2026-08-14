@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { CharacterContentCategory } from "@/lib/types";
 
@@ -15,10 +16,15 @@ export async function uploadContentScreenshotAction(
   if (!(file instanceof File) || file.size === 0) return;
   const caption = String(formData.get("caption") ?? "").trim() || null;
 
-  const extension = file.name.includes(".") ? file.name.split(".").pop() : "png";
-  const path = `${characterId}/content/${category}/${crypto.randomUUID()}.${extension}`;
-
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const extension = file.name.includes(".") ? file.name.split(".").pop() : "png";
+  const path = `${user.id}/content/${characterId}/${category}/${crypto.randomUUID()}.${extension}`;
+
   const { error: uploadError } = await supabase.storage
     .from(BUCKET)
     .upload(path, file, { contentType: file.type || undefined });
